@@ -13,6 +13,8 @@ import {
   getDifficultyColorClass, 
   getCategoryColorClass 
 } from '@/types/exercise'
+import { ProgressionVisualization } from '@/components/exercises/ProgressionVisualization'
+import type { ExperienceLevel } from '@/types/onboarding'
 
 export default function ExerciseDetailPage() {
   const { user, loading: authLoading } = useAuth()
@@ -22,6 +24,7 @@ export default function ExerciseDetailPage() {
   
   const [exercise, setExercise] = useState<Exercise | null>(null)
   const [relatedExercises, setRelatedExercises] = useState<Exercise[]>([])
+  const [userExperienceLevel, setUserExperienceLevel] = useState<ExperienceLevel>('beginner')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -55,6 +58,17 @@ export default function ExerciseDetailPage() {
         }
 
         setExercise(exerciseData)
+
+        // Load user's experience level
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('experience_level')
+          .eq('id', user.id)
+          .single()
+
+        if (!profileError && profileData?.experience_level) {
+          setUserExperienceLevel(profileData.experience_level)
+        }
 
         // Load related exercises (same category, similar difficulty)
         const { data: relatedData, error: relatedError } = await supabase
@@ -237,76 +251,11 @@ export default function ExerciseDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Difficulty Progression */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Difficulty Progression</CardTitle>
-            <CardDescription>
-              Master the fundamentals before advancing to harder variations
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Current Level Indicator */}
-              <div className="flex items-center justify-center py-6 bg-blue-50 rounded-lg border-2 border-blue-200">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600 mb-1">
-                    You Are Here
-                  </div>
-                  <div className="text-lg text-blue-800">
-                    {exercise.name} (Level {exercise.difficulty_level})
-                  </div>
-                </div>
-              </div>
-
-              {/* Progression Levels */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Previous Level */}
-                {exercise.difficulty_level > 1 && (
-                  <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="text-green-600 font-medium mb-2">
-                      ✅ Foundation Level
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Level {exercise.difficulty_level - 1} exercises
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Build your base here first
-                    </div>
-                  </div>
-                )}
-
-                {/* Current Level */}
-                <div className="text-center p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
-                  <div className="text-blue-600 font-medium mb-2">
-                    🎯 Current Level
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Level {exercise.difficulty_level}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    You are working on this level
-                  </div>
-                </div>
-
-                {/* Next Level */}
-                {exercise.difficulty_level < 10 && (
-                  <div className="text-center p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                    <div className="text-orange-600 font-medium mb-2">
-                      🚀 Next Challenge
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Level {exercise.difficulty_level + 1} exercises
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Your next goal to work towards
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Progression Visualization */}
+        <ProgressionVisualization 
+          exercise={exercise}
+          userExperienceLevel={userExperienceLevel}
+        />
 
         {/* Related Exercises */}
         {relatedExercises.length > 0 && (

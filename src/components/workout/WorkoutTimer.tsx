@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 
 interface WorkoutTimerProps {
   restTimeSeconds?: number
@@ -98,10 +97,12 @@ export function WorkoutTimer({
           </div>
 
           {/* Progress Bar */}
-          <Progress 
-            value={progress} 
-            className="w-full h-2"
-          />
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
 
           {/* Timer Controls */}
           <div className="flex gap-2 justify-center">
@@ -183,14 +184,3 @@ export function WorkoutTimer({
   )
 }
 
-// Simple Progress component if not already defined
-function Progress({ value, className }: { value: number, className?: string }) {
-  return (
-    <div className={`bg-gray-200 rounded-full overflow-hidden ${className}`}>
-      <div 
-        className="bg-blue-600 h-full transition-all duration-1000"
-        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-      />
-    </div>
-  )
-}

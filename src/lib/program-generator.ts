@@ -3,9 +3,7 @@ import type {
   ProgramGenerationParams, 
   WeeklyProgram, 
   SessionType, 
-  ExerciseSelection,
-  LEVEL_PARAMETERS,
-  GOAL_MODIFIERS 
+  ExerciseSelection
 } from '@/types/program'
 import { LEVEL_PARAMETERS, GOAL_MODIFIERS } from '@/types/program'
 

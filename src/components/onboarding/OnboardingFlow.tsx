@@ -8,8 +8,9 @@ import { ProgramGenerator } from '@/lib/program-generator'
 import { OnboardingStep } from './OnboardingStep'
 import { OnboardingProgress } from './OnboardingProgress'
 import { ONBOARDING_STEPS, getNextStep, getPreviousStep, calculateProgress } from '@/lib/onboarding-steps'
-import { calculateExperienceLevel } from '@/types/onboarding'
-import type { OnboardingData, ExperienceLevel } from '@/types/onboarding'
+import { assessExperienceLevel, type AssessmentData, type ExperienceLevel } from '@/lib/experience-assessment'
+import type { OnboardingData } from '@/types/onboarding'
+import AssessmentResult from './AssessmentResult'
 import type { ProgramGenerationParams } from '@/types/program'
 
 export function OnboardingFlow() {
@@ -19,6 +20,8 @@ export function OnboardingFlow() {
   const [formData, setFormData] = useState<Partial<OnboardingData>>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showAssessmentResult, setShowAssessmentResult] = useState(false)
+  const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(null)
 
   // Check if user already has completed profile
   useEffect(() => {
@@ -54,7 +57,33 @@ export function OnboardingFlow() {
     if (nextStep) {
       setCurrentStepId(nextStep.id)
     } else {
-      handleComplete()
+      // Before completing, show assessment results
+      showAssessmentResults()
+    }
+  }
+
+  // Show assessment results before final completion
+  function showAssessmentResults() {
+    if (formData.can_do_pushups !== undefined && 
+        formData.can_do_pullups !== undefined && 
+        formData.can_hold_plank !== undefined &&
+        formData.previous_training &&
+        formData.primary_goal &&
+        formData.training_frequency) {
+      
+      const assessment: AssessmentData = {
+        can_do_pushups: formData.can_do_pushups,
+        can_do_pullups: formData.can_do_pullups,
+        can_hold_plank: formData.can_hold_plank,
+        previous_training: formData.previous_training,
+        primary_goal: formData.primary_goal,
+        training_frequency: formData.training_frequency
+      }
+      
+      setAssessmentData(assessment)
+      setShowAssessmentResult(true)
+    } else {
+      setError('Please complete all assessment questions')
     }
   }
 
@@ -66,26 +95,14 @@ export function OnboardingFlow() {
     }
   }
 
-  // Handle onboarding completion
-  async function handleComplete() {
-    if (!user || !formData) return
+  // Handle onboarding completion with experience level
+  async function handleComplete(experienceLevel: ExperienceLevel) {
+    if (!user || !formData || !assessmentData) return
 
     setLoading(true)
     setError(null)
 
     try {
-      // Calculate experience level based on assessment
-      let experienceLevel: ExperienceLevel = 'beginner'
-      
-      if (formData.can_do_pushups !== undefined && 
-          formData.can_do_pullups !== undefined && 
-          formData.can_hold_plank !== undefined) {
-        experienceLevel = calculateExperienceLevel(
-          formData.can_do_pushups,
-          formData.can_do_pullups, 
-          formData.can_hold_plank
-        )
-      }
 
       // Update user profile
       const { error: profileError } = await supabase
@@ -168,16 +185,28 @@ export function OnboardingFlow() {
           </div>
         )}
 
-        {/* Current Step */}
-        <OnboardingStep
-          step={currentStep}
-          formData={formData}
-          onUpdate={updateFormData}
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-          canGoBack={getPreviousStep(currentStepId) !== null}
-          isLastStep={getNextStep(currentStepId) === null}
-        />
+        {/* Show Assessment Result or Current Step */}
+        {showAssessmentResult && assessmentData ? (
+          <AssessmentResult
+            assessmentData={assessmentData}
+            onContinue={handleComplete}
+            onRetake={() => {
+              setShowAssessmentResult(false)
+              setAssessmentData(null)
+              setCurrentStepId('fitness-assessment') // Go back to fitness assessment
+            }}
+          />
+        ) : (
+          <OnboardingStep
+            step={currentStep}
+            formData={formData}
+            onUpdate={updateFormData}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canGoBack={getPreviousStep(currentStepId) !== null}
+            isLastStep={getNextStep(currentStepId) === null}
+          />
+        )}
       </div>
     </div>
   )
