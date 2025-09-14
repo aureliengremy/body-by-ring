@@ -3,9 +3,11 @@ import type {
   ProgramGenerationParams, 
   WeeklyProgram, 
   SessionType, 
-  ExerciseSelection
+  ExerciseSelection,
+  ProgramPhase
 } from '@/types/program'
 import { LEVEL_PARAMETERS, GOAL_MODIFIERS } from '@/types/program'
+import { PhaseManager, type PhaseConfig } from './program-phases'
 
 // Exercise database (we'll expand this based on our SQL data)
 const EXERCISE_LIBRARY: ExerciseSelection = {
@@ -32,9 +34,13 @@ const EXERCISE_LIBRARY: ExerciseSelection = {
 export class ProgramGenerator {
   private params: ProgramGenerationParams
   private exercises: any[] = []
+  private currentPhase: ProgramPhase
+  private phaseConfig: PhaseConfig
 
   constructor(params: ProgramGenerationParams) {
     this.params = params
+    this.currentPhase = PhaseManager.getPhaseForUser(params)
+    this.phaseConfig = PhaseManager.getPhaseConfig(this.currentPhase)
   }
 
   async initialize() {
@@ -57,13 +63,13 @@ export class ProgramGenerator {
   async generateProgram(userId: string): Promise<string> {
     await this.initialize()
 
-    // Create program record
+    // Create program record with phase information
     const { data: program, error: programError } = await supabase
       .from('programs')
       .insert({
         user_id: userId,
-        name: 'Body by Rings - Phase 1',
-        phase: 1,
+        name: `Body by Rings - ${this.phaseConfig.name}`,
+        phase: this.currentPhase,
         cycle_number: 1,
         status: 'active'
       })
@@ -74,8 +80,8 @@ export class ProgramGenerator {
       throw new Error('Failed to create program: ' + programError.message)
     }
 
-    // Generate 4 weeks of workouts (week 5 will be deload, added later)
-    const workouts = this.generateWeeklyWorkouts(4)
+    // Generate full 5-week cycle (4 progression weeks + 1 deload week)
+    const workouts = this.generateFullCycle()
     
     // Insert workouts into database
     for (const weekData of workouts) {
@@ -93,36 +99,50 @@ export class ProgramGenerator {
     return program.id
   }
 
-  // Generate weekly workout structure
-  private generateWeeklyWorkouts(numWeeks: number): WeeklyProgram[] {
+  // Generate complete 5-week cycle (4 progression + 1 deload)
+  private generateFullCycle(): WeeklyProgram[] {
     const weeks: WeeklyProgram[] = []
 
-    for (let week = 1; week <= numWeeks; week++) {
+    // Weeks 1-4: Progressive overload
+    for (let week = 1; week <= 4; week++) {
       const weeklyProgram: WeeklyProgram = {
         week_number: week,
         is_deload: false,
-        sessions: this.generateWeeklySessions()
+        sessions: this.generateWeeklySessions(week) // Pass week number for progression
       }
       weeks.push(weeklyProgram)
     }
 
+    // Week 5: Deload week
+    const deloadWeek: WeeklyProgram = {
+      week_number: 5,
+      is_deload: true,
+      sessions: this.generateDeloadSessions()
+    }
+    weeks.push(deloadWeek)
+
     return weeks
   }
 
-  // Generate sessions for a week based on training frequency
-  private generateWeeklySessions() {
+  // Generate weekly workout structure (kept for backward compatibility)
+  private generateWeeklyWorkouts(numWeeks: number): WeeklyProgram[] {
+    return this.generateFullCycle().slice(0, numWeeks)
+  }
+
+  // Generate sessions for a week based on training frequency and progression
+  private generateWeeklySessions(weekNumber: number = 1) {
     const frequency = this.params.training_frequency
     const sessions: { session_type: SessionType; exercises: any[] }[] = []
 
     // Basic 2-3 day split: Push/Pull alternating
     if (frequency <= 3) {
       sessions.push(
-        { session_type: 'push_1', exercises: this.generatePushSession(1) },
-        { session_type: 'pull_1', exercises: this.generatePullSession(1) }
+        { session_type: 'push_1', exercises: this.generatePushSession(1, weekNumber) },
+        { session_type: 'pull_1', exercises: this.generatePullSession(1, weekNumber) }
       )
       if (frequency >= 3) {
         sessions.push(
-          { session_type: 'push_2', exercises: this.generatePushSession(2) }
+          { session_type: 'push_2', exercises: this.generatePushSession(2, weekNumber) }
         )
       }
     }
@@ -130,27 +150,60 @@ export class ProgramGenerator {
     // 4+ day split: Full push/pull split
     if (frequency >= 4) {
       sessions.push(
-        { session_type: 'push_1', exercises: this.generatePushSession(1) },
-        { session_type: 'pull_1', exercises: this.generatePullSession(1) },
-        { session_type: 'push_2', exercises: this.generatePushSession(2) },
-        { session_type: 'pull_2', exercises: this.generatePullSession(2) }
+        { session_type: 'push_1', exercises: this.generatePushSession(1, weekNumber) },
+        { session_type: 'pull_1', exercises: this.generatePullSession(1, weekNumber) },
+        { session_type: 'push_2', exercises: this.generatePushSession(2, weekNumber) },
+        { session_type: 'pull_2', exercises: this.generatePullSession(2, weekNumber) }
       )
     }
 
     return sessions
   }
 
-  // Generate push session exercises
-  private generatePushSession(sessionNumber: 1 | 2) {
-    const levelParams = LEVEL_PARAMETERS[this.params.experience_level]
+  // Generate deload sessions (reduced volume and intensity)
+  private generateDeloadSessions() {
+    const frequency = this.params.training_frequency
+    const sessions: { session_type: SessionType; exercises: any[] }[] = []
+
+    // Deload sessions are lighter versions with 50% volume
+    if (frequency <= 3) {
+      sessions.push(
+        { session_type: 'push_1', exercises: this.generateDeloadPushSession(1) },
+        { session_type: 'pull_1', exercises: this.generateDeloadPullSession(1) }
+      )
+      if (frequency >= 3) {
+        sessions.push(
+          { session_type: 'push_2', exercises: this.generateDeloadPushSession(2) }
+        )
+      }
+    }
+
+    if (frequency >= 4) {
+      sessions.push(
+        { session_type: 'push_1', exercises: this.generateDeloadPushSession(1) },
+        { session_type: 'pull_1', exercises: this.generateDeloadPullSession(1) },
+        { session_type: 'push_2', exercises: this.generateDeloadPushSession(2) },
+        { session_type: 'pull_2', exercises: this.generateDeloadPullSession(2) }
+      )
+    }
+
+    return sessions
+  }
+
+  // Generate push session exercises with weekly progression
+  private generatePushSession(sessionNumber: 1 | 2, weekNumber: number = 1) {
+    const baseLevelParams = LEVEL_PARAMETERS[this.params.experience_level]
     const goalMods = GOAL_MODIFIERS[this.params.primary_goal]
+    
+    // Apply phase adjustments to base parameters
+    const levelParams = PhaseManager.getPhaseAdjustedParams(baseLevelParams, this.currentPhase, goalMods)
 
     const exercises = []
 
     // Primary push exercise
     const primaryExercise = this.selectExercise('push', 'primary')
     if (primaryExercise) {
-      exercises.push(this.createExerciseSet(primaryExercise, levelParams, goalMods, true))
+      exercises.push(this.createExerciseSet(primaryExercise, levelParams, goalMods, true, weekNumber))
     }
 
     // Secondary push exercises
@@ -158,38 +211,41 @@ export class ProgramGenerator {
     for (let i = 0; i < numSecondary; i++) {
       const secondaryExercise = this.selectExercise('push', 'secondary')
       if (secondaryExercise) {
-        exercises.push(this.createExerciseSet(secondaryExercise, levelParams, goalMods, false))
+        exercises.push(this.createExerciseSet(secondaryExercise, levelParams, goalMods, false, weekNumber))
       }
     }
 
     // Core work for push days
     const coreExercise = this.selectExercise('core', 'primary')
     if (coreExercise) {
-      exercises.push(this.createExerciseSet(coreExercise, levelParams, goalMods, false))
+      exercises.push(this.createExerciseSet(coreExercise, levelParams, goalMods, false, weekNumber))
     }
 
     // Skill work if goal is skill development
     if (this.params.primary_goal === 'skill_development') {
       const skillExercise = this.selectExercise('push', 'skill')
       if (skillExercise) {
-        exercises.push(this.createExerciseSet(skillExercise, levelParams, goalMods, false))
+        exercises.push(this.createExerciseSet(skillExercise, levelParams, goalMods, false, weekNumber))
       }
     }
 
     return exercises
   }
 
-  // Generate pull session exercises
-  private generatePullSession(sessionNumber: 1 | 2) {
-    const levelParams = LEVEL_PARAMETERS[this.params.experience_level]
+  // Generate pull session exercises with weekly progression
+  private generatePullSession(sessionNumber: 1 | 2, weekNumber: number = 1) {
+    const baseLevelParams = LEVEL_PARAMETERS[this.params.experience_level]
     const goalMods = GOAL_MODIFIERS[this.params.primary_goal]
+    
+    // Apply phase adjustments to base parameters
+    const levelParams = PhaseManager.getPhaseAdjustedParams(baseLevelParams, this.currentPhase, goalMods)
 
     const exercises = []
 
     // Primary pull exercise
     const primaryExercise = this.selectExercise('pull', 'primary')
     if (primaryExercise) {
-      exercises.push(this.createExerciseSet(primaryExercise, levelParams, goalMods, true))
+      exercises.push(this.createExerciseSet(primaryExercise, levelParams, goalMods, true, weekNumber))
     }
 
     // Secondary pull exercises
@@ -197,21 +253,21 @@ export class ProgramGenerator {
     for (let i = 0; i < numSecondary; i++) {
       const secondaryExercise = this.selectExercise('pull', 'secondary')
       if (secondaryExercise) {
-        exercises.push(this.createExerciseSet(secondaryExercise, levelParams, goalMods, false))
+        exercises.push(this.createExerciseSet(secondaryExercise, levelParams, goalMods, false, weekNumber))
       }
     }
 
     // Legs work for pull days
     const legsExercise = this.selectExercise('legs', 'primary')
     if (legsExercise) {
-      exercises.push(this.createExerciseSet(legsExercise, levelParams, goalMods, false))
+      exercises.push(this.createExerciseSet(legsExercise, levelParams, goalMods, false, weekNumber))
     }
 
     // Skill work if goal is skill development
     if (this.params.primary_goal === 'skill_development') {
       const skillExercise = this.selectExercise('pull', 'skill')
       if (skillExercise) {
-        exercises.push(this.createExerciseSet(skillExercise, levelParams, goalMods, false))
+        exercises.push(this.createExerciseSet(skillExercise, levelParams, goalMods, false, weekNumber))
       }
     }
 
@@ -267,12 +323,21 @@ export class ProgramGenerator {
     return exercises[0]
   }
 
-  // Create exercise set configuration
-  private createExerciseSet(exercise: any, levelParams: any, goalMods: any, isPrimary: boolean) {
+  // Create exercise set configuration with weekly progression
+  private createExerciseSet(exercise: any, levelParams: any, goalMods: any, isPrimary: boolean, weekNumber: number = 1) {
     const baseReps = levelParams.reps_range
     const adjustedReps = {
       min: Math.max(1, baseReps.min + goalMods.rep_adjustment),
       max: Math.max(2, baseReps.max + goalMods.rep_adjustment)
+    }
+
+    // Progressive overload: Add 1 rep per week for primary exercises, every 2 weeks for secondary
+    const progressionRate = isPrimary ? 1 : 0.5
+    const progressionIncrease = Math.floor((weekNumber - 1) * progressionRate)
+
+    const finalReps = {
+      min: adjustedReps.min + progressionIncrease,
+      max: adjustedReps.max + progressionIncrease
     }
 
     const baseSets = isPrimary ? levelParams.sets_per_exercise.max : levelParams.sets_per_exercise.min
@@ -282,10 +347,91 @@ export class ProgramGenerator {
       exercise_id: exercise.id,
       exercise_name: exercise.name,
       sets: baseSets,
+      reps_min: finalReps.min,
+      reps_max: finalReps.max,
+      tempo: '30X1', // 3 second eccentric, 0 pause, explosive concentric, 1 second pause
+      rest_seconds: restSeconds,
+      week_number: weekNumber
+    }
+  }
+
+  // Generate deload push session (50% volume)
+  private generateDeloadPushSession(sessionNumber: 1 | 2) {
+    const levelParams = LEVEL_PARAMETERS[this.params.experience_level]
+    const goalMods = GOAL_MODIFIERS[this.params.primary_goal]
+
+    const exercises = []
+
+    // Primary push exercise with reduced volume
+    const primaryExercise = this.selectExercise('push', 'primary')
+    if (primaryExercise) {
+      exercises.push(this.createDeloadExerciseSet(primaryExercise, levelParams, goalMods, true))
+    }
+
+    // Reduced secondary work
+    const secondaryExercise = this.selectExercise('push', 'secondary')
+    if (secondaryExercise) {
+      exercises.push(this.createDeloadExerciseSet(secondaryExercise, levelParams, goalMods, false))
+    }
+
+    // Light core work
+    const coreExercise = this.selectExercise('core', 'primary')
+    if (coreExercise) {
+      exercises.push(this.createDeloadExerciseSet(coreExercise, levelParams, goalMods, false))
+    }
+
+    return exercises
+  }
+
+  // Generate deload pull session (50% volume)
+  private generateDeloadPullSession(sessionNumber: 1 | 2) {
+    const levelParams = LEVEL_PARAMETERS[this.params.experience_level]
+    const goalMods = GOAL_MODIFIERS[this.params.primary_goal]
+
+    const exercises = []
+
+    // Primary pull exercise with reduced volume
+    const primaryExercise = this.selectExercise('pull', 'primary')
+    if (primaryExercise) {
+      exercises.push(this.createDeloadExerciseSet(primaryExercise, levelParams, goalMods, true))
+    }
+
+    // Reduced secondary work
+    const secondaryExercise = this.selectExercise('pull', 'secondary')
+    if (secondaryExercise) {
+      exercises.push(this.createDeloadExerciseSet(secondaryExercise, levelParams, goalMods, false))
+    }
+
+    // Light legs work
+    const legsExercise = this.selectExercise('legs', 'primary')
+    if (legsExercise) {
+      exercises.push(this.createDeloadExerciseSet(legsExercise, levelParams, goalMods, false))
+    }
+
+    return exercises
+  }
+
+  // Create deload exercise set (50% volume, easier intensities)
+  private createDeloadExerciseSet(exercise: any, levelParams: any, goalMods: any, isPrimary: boolean) {
+    const baseReps = levelParams.reps_range
+    const adjustedReps = {
+      min: Math.max(1, Math.floor((baseReps.min + goalMods.rep_adjustment) * 0.6)), // 60% reps
+      max: Math.max(2, Math.floor((baseReps.max + goalMods.rep_adjustment) * 0.6))
+    }
+
+    const baseSets = Math.max(1, Math.floor((isPrimary ? levelParams.sets_per_exercise.max : levelParams.sets_per_exercise.min) * 0.5)) // 50% sets
+    const restSeconds = Math.round(levelParams.rest_seconds.strength * goalMods.rest_multiplier * 0.8) // 20% less rest
+
+    return {
+      exercise_id: exercise.id,
+      exercise_name: exercise.name,
+      sets: baseSets,
       reps_min: adjustedReps.min,
       reps_max: adjustedReps.max,
-      tempo: '30X1', // 3 second eccentric, 0 pause, explosive concentric, 1 second pause
-      rest_seconds: restSeconds
+      tempo: '20X1', // Faster tempo for deload
+      rest_seconds: restSeconds,
+      week_number: 5, // Always week 5
+      is_deload: true
     }
   }
 
