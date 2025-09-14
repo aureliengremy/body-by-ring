@@ -31,6 +31,12 @@ const NAV_ITEMS: NavItem[] = [
     description: 'Training sessions and progress'
   },
   {
+    label: 'Analytics',
+    href: '/analytics',
+    icon: '📊',
+    description: 'Progress tracking and insights'
+  },
+  {
     label: 'Exercise Library',
     href: '/exercises',
     icon: '📚',
