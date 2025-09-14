@@ -104,15 +104,17 @@ export function OnboardingFlow() {
 
     try {
 
-      // Update user profile
+      // Create or update user profile (upsert)
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
+          email: user.email,
           full_name: formData.full_name,
-          experience_level: experienceLevel,
-          updated_at: new Date().toISOString()
+          experience_level: experienceLevel
+        }, { 
+          onConflict: 'id'
         })
-        .eq('id', user.id)
 
       if (profileError) throw profileError
 

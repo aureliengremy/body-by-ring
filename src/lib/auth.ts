@@ -17,21 +17,8 @@ export const auth = {
       }
     })
 
-    // Create profile after successful signup
-    if (data.user && !error) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user.id,
-          email: data.user.email!,
-          full_name: fullName || '',
-          experience_level: 'beginner'
-        })
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError)
-      }
-    }
+    // Profile will be created during onboarding flow
+    // This avoids RLS issues during signup
 
     return { data, error }
   },
