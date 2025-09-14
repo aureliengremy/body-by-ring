@@ -19,6 +19,12 @@ const NAV_ITEMS: NavItem[] = [
     description: 'Overview and quick actions'
   },
   {
+    label: 'Programs',
+    href: '/programs',
+    icon: '🎯',
+    description: 'Training programs and cycles'
+  },
+  {
     label: 'My Workouts',
     href: '/workouts',
     icon: '💪',

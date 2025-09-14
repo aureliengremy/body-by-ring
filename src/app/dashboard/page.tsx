@@ -120,7 +120,10 @@ export default function DashboardPage() {
                     <p>• Started {new Date(program.started_at).toLocaleDateString()}</p>
                     <p>• Status: <span className="font-medium text-green-600">{program.status}</span></p>
                   </div>
-                  <Button className="w-full">
+                  <Button 
+                    className="w-full"
+                    onClick={() => router.push('/workout/start')}
+                  >
                     Start Next Workout
                   </Button>
                 </>
@@ -175,12 +178,16 @@ export default function DashboardPage() {
             <Button 
               variant="outline" 
               className="h-16"
-              onClick={() => router.push('/workouts')}
+              onClick={() => router.push('/workout/start')}
             >
-              📝 My Workouts
+              🏋️ Start Workout
             </Button>
-            <Button variant="outline" className="h-16">
-              📈 View Progress
+            <Button 
+              variant="outline" 
+              className="h-16"
+              onClick={() => router.push('/programs')}
+            >
+              📈 My Programs
             </Button>
             <Button 
               variant="outline" 
