@@ -32,6 +32,8 @@ import { ProgressReports } from '@/components/analytics/ProgressReports'
 import { ExerciseTracking } from '@/components/analytics/ExerciseTracking'
 import { GoalTracking } from '@/components/analytics/GoalTracking'
 import { TrendAnalysis } from '@/components/analytics/TrendAnalysis'
+import { AchievementSystem } from '@/components/analytics/AchievementSystem'
+import { ExportTools } from '@/components/analytics/ExportTools'
 
 interface WorkoutData {
   date: string
@@ -255,8 +257,10 @@ export default function AnalyticsPage() {
             <TabsTrigger value="consistency">Consistency</TabsTrigger>
             <TabsTrigger value="exercises">Exercise Tracking</TabsTrigger>
             <TabsTrigger value="trends">Trend Analysis</TabsTrigger>
+            <TabsTrigger value="achievements">Achievements</TabsTrigger>
             <TabsTrigger value="reports">Progress Reports</TabsTrigger>
-            <TabsTrigger value="goals">Goals & Achievements</TabsTrigger>
+            <TabsTrigger value="goals">Goals & Tracking</TabsTrigger>
+            <TabsTrigger value="export">Export & Share</TabsTrigger>
           </TabsList>
 
           <TabsContent value="progress" className="space-y-4">
@@ -383,12 +387,21 @@ export default function AnalyticsPage() {
             <TrendAnalysis />
           </TabsContent>
 
+
+          <TabsContent value="achievements" className="space-y-4">
+            <AchievementSystem />
+          </TabsContent>
+
           <TabsContent value="reports" className="space-y-4">
             <ProgressReports />
           </TabsContent>
 
           <TabsContent value="goals" className="space-y-4">
             <GoalTracking />
+          </TabsContent>
+
+          <TabsContent value="export" className="space-y-4">
+            <ExportTools />
           </TabsContent>
         </Tabs>
       </div>
