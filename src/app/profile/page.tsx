@@ -9,6 +9,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Badge } from '@/components/ui/badge'
+import { Trophy, Zap, Star } from 'lucide-react'
 import type { ExperienceLevel } from '@/types/onboarding'
 
 interface UserProfile {
@@ -16,6 +19,7 @@ interface UserProfile {
   email: string
   full_name: string
   experience_level: ExperienceLevel
+  gamification_enabled: boolean
   created_at: string
   updated_at: string
 }
@@ -32,7 +36,8 @@ export default function ProfilePage() {
   // Form state
   const [formData, setFormData] = useState({
     full_name: '',
-    experience_level: '' as ExperienceLevel
+    experience_level: '' as ExperienceLevel,
+    gamification_enabled: true
   })
 
   // Redirect if not authenticated
@@ -66,7 +71,8 @@ export default function ProfilePage() {
         setProfile(data)
         setFormData({
           full_name: data.full_name || '',
-          experience_level: data.experience_level || 'beginner'
+          experience_level: data.experience_level || 'beginner',
+          gamification_enabled: data.gamification_enabled ?? true
         })
       } catch (err) {
         console.error('Error loading profile:', err)
@@ -94,6 +100,7 @@ export default function ProfilePage() {
         .update({
           full_name: formData.full_name,
           experience_level: formData.experience_level,
+          gamification_enabled: formData.gamification_enabled,
           updated_at: new Date().toISOString()
         })
         .eq('id', user.id)
@@ -104,6 +111,7 @@ export default function ProfilePage() {
         ...prev,
         full_name: formData.full_name,
         experience_level: formData.experience_level,
+        gamification_enabled: formData.gamification_enabled,
         updated_at: new Date().toISOString()
       } : null)
 
@@ -117,7 +125,7 @@ export default function ProfilePage() {
   }
 
   // Handle input changes
-  function handleInputChange(field: keyof typeof formData, value: string) {
+  function handleInputChange(field: keyof typeof formData, value: string | boolean) {
     setFormData(prev => ({ ...prev, [field]: value }))
     // Clear messages when user starts editing
     if (error) setError(null)
@@ -234,6 +242,63 @@ export default function ProfilePage() {
                 <p className="text-sm text-gray-500">
                   Changing your experience level may generate a new training program.
                 </p>
+              </div>
+
+              {/* Gamification Settings */}
+              <div className="space-y-4 pt-4 border-t border-gray-200">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Préférences d'interface
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Personnalisez votre expérience d'entraînement
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      <h4 className="font-medium text-gray-900">
+                        Mode Gamification
+                      </h4>
+                      {formData.gamification_enabled && (
+                        <Badge className="bg-green-100 text-green-800">
+                          <Star className="h-3 w-3 mr-1" />
+                          Activé
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      {formData.gamification_enabled 
+                        ? "Affiche les niveaux, XP, séries et défis pour rendre l'entraînement plus motivant"
+                        : "Interface simplifiée sans éléments de gamification"
+                      }
+                    </p>
+                    
+                    {formData.gamification_enabled && (
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Zap className="h-3 w-3" />
+                          Système XP & Niveaux
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Trophy className="h-3 w-3" />
+                          Achievements
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3" />
+                          Défis hebdomadaires
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Switch
+                    checked={formData.gamification_enabled}
+                    onCheckedChange={(checked) => handleInputChange('gamification_enabled', checked)}
+                  />
+                </div>
               </div>
 
               {/* Account Info */}
