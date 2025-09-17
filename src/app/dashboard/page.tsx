@@ -6,9 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { StreakTracker } from '@/components/gamification/StreakTracker'
-import { MotivationCenter } from '@/components/gamification/MotivationCenter'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { GamificationSystem, UserGameData } from '@/lib/gamification'
 import { 
   Zap, 
@@ -17,6 +15,17 @@ import {
   BarChart3,
   Heart
 } from 'lucide-react'
+
+// Lazy load gamification components for better performance
+const StreakTracker = lazy(() => import('@/components/gamification/StreakTracker').then(module => ({ default: module.StreakTracker })))
+const MotivationCenter = lazy(() => import('@/components/gamification/MotivationCenter').then(module => ({ default: module.MotivationCenter })))
+
+// Loading component for lazy-loaded components
+const ComponentLoader = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+)
 
 export default function DashboardPage() {
   const { user, signOut, loading } = useAuth()
@@ -77,9 +86,15 @@ export default function DashboardPage() {
     loadData()
   }, [user, searchParams])
 
-  // Redirect to auth if not logged in
+  // Handle authentication redirect
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth')
+    }
+  }, [loading, user, router])
+
+  // Don't render if not authenticated
   if (!loading && !user) {
-    router.push('/auth')
     return null
   }
 
@@ -275,15 +290,19 @@ export default function DashboardPage() {
           {gamificationEnabled && (
             <>
               <TabsContent value="gamification" className="space-y-6">
-                <StreakTracker gameData={gameData} />
+                <Suspense fallback={<ComponentLoader />}>
+                  <StreakTracker gameData={gameData} />
+                </Suspense>
               </TabsContent>
 
               <TabsContent value="motivation" className="space-y-6">
-                <MotivationCenter 
-                  userLevel={gameData.level}
-                  streak={gameData.streak.current}
-                  lastLoginDate={gameData.lastLoginDate}
-                />
+                <Suspense fallback={<ComponentLoader />}>
+                  <MotivationCenter 
+                    userLevel={gameData.level}
+                    streak={gameData.streak.current}
+                    lastLoginDate={gameData.lastLoginDate}
+                  />
+                </Suspense>
               </TabsContent>
 
               <TabsContent value="challenges" className="space-y-6">
