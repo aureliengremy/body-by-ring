@@ -113,8 +113,31 @@ export function ExerciseCard({ exercise, showCategory = true, compact = false }:
               variant="outline"
               onClick={(e) => {
                 e.stopPropagation()
-                // TODO: Add to workout functionality
-                console.log('Add to workout:', exercise.name)
+                // Add to workout functionality with feedback
+                const handleAddToWorkout = () => {
+                  // Store in localStorage for now (will be enhanced later with proper state management)
+                  const savedExercises = JSON.parse(localStorage.getItem('quickWorkout') || '[]')
+                  const exerciseToAdd = {
+                    id: exercise.id,
+                    name: exercise.name,
+                    category: exercise.category,
+                    difficulty: exercise.difficulty,
+                    addedAt: new Date().toISOString()
+                  }
+                  
+                  // Check if already added
+                  const alreadyAdded = savedExercises.find((ex: any) => ex.id === exercise.id)
+                  if (alreadyAdded) {
+                    alert(`${exercise.name} is already in your quick workout!`)
+                    return
+                  }
+                  
+                  savedExercises.push(exerciseToAdd)
+                  localStorage.setItem('quickWorkout', JSON.stringify(savedExercises))
+                  alert(`${exercise.name} added to your quick workout! (${savedExercises.length} exercises total)`)
+                }
+                
+                handleAddToWorkout()
               }}
             >
               Add to Workout

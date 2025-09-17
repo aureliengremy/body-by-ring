@@ -227,10 +227,50 @@ export default function ExerciseDetailPage() {
                 <div>
                   <h4 className="font-semibold mb-3">Equipment Needed</h4>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
-                      Bodyweight Only
-                    </span>
-                    {/* TODO: Add equipment tags from database */}
+                    {(() => {
+                      // Determine equipment based on exercise category and requirements
+                      const equipment = []
+                      
+                      // Default: Bodyweight exercises
+                      if (exercise.category === 'strength' || exercise.category === 'conditioning') {
+                        equipment.push({ name: 'Bodyweight Only', color: 'green' })
+                      }
+                      
+                      // Add rings for ring-specific exercises
+                      if (exercise.name.toLowerCase().includes('ring') || 
+                          exercise.category === 'rings') {
+                        equipment.push({ name: 'Gymnastic Rings', color: 'blue' })
+                      }
+                      
+                      // Add pull-up bar for hanging exercises
+                      if (exercise.name.toLowerCase().includes('pull') || 
+                          exercise.name.toLowerCase().includes('hang') ||
+                          exercise.name.toLowerCase().includes('chin')) {
+                        equipment.push({ name: 'Pull-up Bar', color: 'purple' })
+                      }
+                      
+                      // Add parallettes for specific exercises
+                      if (exercise.name.toLowerCase().includes('l-sit') || 
+                          exercise.name.toLowerCase().includes('planche') ||
+                          exercise.name.toLowerCase().includes('handstand')) {
+                        equipment.push({ name: 'Parallettes (Optional)', color: 'orange' })
+                      }
+                      
+                      return equipment.map((item, index) => (
+                        <span 
+                          key={index}
+                          className={`px-3 py-1 text-sm rounded-full ${
+                            item.color === 'green' ? 'bg-green-100 text-green-800' :
+                            item.color === 'blue' ? 'bg-blue-100 text-blue-800' :
+                            item.color === 'purple' ? 'bg-purple-100 text-purple-800' :
+                            item.color === 'orange' ? 'bg-orange-100 text-orange-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {item.name}
+                        </span>
+                      ))
+                    })()}
                   </div>
                 </div>
               </div>
