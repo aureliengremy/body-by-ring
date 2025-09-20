@@ -4,6 +4,9 @@ import "./globals.css";
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ServiceWorkerRegistration } from '@/components/pwa/ServiceWorkerRegistration';
+import { ToastProvider } from '@/components/ui/toast';
+import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,11 +56,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ServiceWorkerRegistration>
-          <AuthProvider>
-            <AppLayout>
-              {children}
-            </AppLayout>
-          </AuthProvider>
+          <SkipNavigation />
+          <ThemeProvider>
+            <ToastProvider>
+              <AuthProvider>
+                <AppLayout>
+                  <main id="main-content" tabIndex={-1}>
+                    {children}
+                  </main>
+                </AppLayout>
+              </AuthProvider>
+            </ToastProvider>
+          </ThemeProvider>
         </ServiceWorkerRegistration>
       </body>
     </html>
