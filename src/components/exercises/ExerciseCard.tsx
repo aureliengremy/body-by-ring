@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import type { Exercise } from '@/types/exercise'
 import { DIFFICULTY_LABELS, CATEGORY_INFO, getDifficultyColorClass, getCategoryColorClass } from '@/types/exercise'
 import { useRouter } from 'next/navigation'
+import { useToastActions } from '@/components/ui/toast'
 
 interface ExerciseCardProps {
   exercise: Exercise
@@ -14,6 +15,7 @@ interface ExerciseCardProps {
 
 export function ExerciseCard({ exercise, showCategory = true, compact = false }: ExerciseCardProps) {
   const router = useRouter()
+  const { success, warning } = useToastActions()
   
   const difficultyInfo = DIFFICULTY_LABELS[exercise.difficulty_level as keyof typeof DIFFICULTY_LABELS]
   const categoryInfo = CATEGORY_INFO[exercise.category]
@@ -24,7 +26,7 @@ export function ExerciseCard({ exercise, showCategory = true, compact = false }:
 
   if (compact) {
     return (
-      <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleViewDetails}>
+      <Card className="interactive-card cursor-pointer focus-ring" onClick={handleViewDetails} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && handleViewDetails()}>
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-2">
             <h3 className="font-semibold text-lg">{exercise.name}</h3>
@@ -51,7 +53,7 @@ export function ExerciseCard({ exercise, showCategory = true, compact = false }:
   }
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="interactive-card focus-ring" tabIndex={0}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -105,12 +107,13 @@ export function ExerciseCard({ exercise, showCategory = true, compact = false }:
           <div className="flex gap-2 pt-2">
             <Button 
               onClick={handleViewDetails}
-              className="flex-1"
+              className="flex-1 interactive-button"
             >
               View Details
             </Button>
             <Button 
               variant="outline"
+              className="interactive-button"
               onClick={(e) => {
                 e.stopPropagation()
                 // Add to workout functionality with feedback
@@ -128,13 +131,13 @@ export function ExerciseCard({ exercise, showCategory = true, compact = false }:
                   // Check if already added
                   const alreadyAdded = savedExercises.find((ex: any) => ex.id === exercise.id)
                   if (alreadyAdded) {
-                    alert(`${exercise.name} is already in your quick workout!`)
+                    warning('Already Added', `${exercise.name} is already in your quick workout!`)
                     return
                   }
                   
                   savedExercises.push(exerciseToAdd)
                   localStorage.setItem('quickWorkout', JSON.stringify(savedExercises))
-                  alert(`${exercise.name} added to your quick workout! (${savedExercises.length} exercises total)`)
+                  success('Exercise Added!', `${exercise.name} added to your quick workout! (${savedExercises.length} exercises total)`)
                 }
                 
                 handleAddToWorkout()
