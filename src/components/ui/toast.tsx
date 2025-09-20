@@ -134,6 +134,7 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
       )}
       role="alert"
       aria-live="polite"
+      aria-atomic="true"
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 mt-0.5">
