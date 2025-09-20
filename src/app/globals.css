@@ -120,3 +120,157 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Body by Rings Custom Animations */
+  
+  /* Workout Progress Animation */
+  @keyframes progress-fill {
+    0% { width: 0%; opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+  
+  /* Gamification Level Up */
+  @keyframes level-up {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  
+  /* Achievement Unlock */
+  @keyframes achievement-unlock {
+    0% { transform: translateY(10px) rotate(-5deg); opacity: 0; }
+    50% { transform: translateY(-5px) rotate(2deg); opacity: 1; }
+    100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  }
+  
+  /* Workout Timer Pulse */
+  @keyframes timer-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+  }
+  
+  /* Exercise Card Hover Effect */
+  @keyframes card-hover {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-2px) scale(1.02); }
+  }
+  
+  /* Streak Fire Animation */
+  @keyframes streak-fire {
+    0%, 100% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); }
+    25% { transform: scale(1.1) rotate(2deg); filter: hue-rotate(10deg); }
+    75% { transform: scale(0.95) rotate(-2deg); filter: hue-rotate(-10deg); }
+  }
+  
+  /* Loading Breath Animation */
+  @keyframes breath {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
+  }
+  
+  /* Success Checkmark */
+  @keyframes success-check {
+    0% { stroke-dasharray: 0 100; }
+    100% { stroke-dasharray: 100 0; }
+  }
+  
+  /* Custom Animation Classes */
+  .animate-progress-fill {
+    animation: progress-fill 0.8s ease-out forwards;
+  }
+  
+  .animate-level-up {
+    animation: level-up 0.6s ease-in-out;
+  }
+  
+  .animate-achievement {
+    animation: achievement-unlock 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  .animate-timer-pulse {
+    animation: timer-pulse 2s ease-in-out infinite;
+  }
+  
+  .animate-card-hover {
+    animation: card-hover 0.3s ease-out forwards;
+  }
+  
+  .animate-streak-fire {
+    animation: streak-fire 2s ease-in-out infinite;
+  }
+  
+  .animate-breath {
+    animation: breath 3s ease-in-out infinite;
+  }
+  
+  .animate-success-check {
+    animation: success-check 0.6s ease-in-out forwards;
+  }
+  
+  /* Interactive States */
+  .interactive-card {
+    @apply transition-all duration-300 ease-out;
+    @apply hover:shadow-lg hover:-translate-y-1;
+    @apply active:scale-95 active:shadow-md;
+    @apply focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+  }
+  
+  .interactive-button {
+    @apply transition-all duration-200 ease-out;
+    @apply hover:scale-105 hover:shadow-md;
+    @apply active:scale-95;
+    @apply focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+  }
+  
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-sm border border-white/20;
+    @apply shadow-lg shadow-black/5;
+  }
+  
+  /* Workout-specific animations */
+  .set-completion {
+    @apply transition-all duration-500 ease-out;
+  }
+  
+  .set-completion.completed {
+    @apply bg-green-50 border-green-200 scale-105;
+    animation: achievement-unlock 0.5s ease-out;
+  }
+  
+  /* Loading states enhancement */
+  .loading-skeleton {
+    @apply bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200;
+    @apply bg-[length:200%_100%];
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  /* Accessibility improvements */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-progress-fill,
+    .animate-level-up,
+    .animate-achievement,
+    .animate-timer-pulse,
+    .animate-card-hover,
+    .animate-streak-fire,
+    .animate-breath,
+    .animate-success-check {
+      animation: none;
+    }
+    
+    .interactive-card,
+    .interactive-button {
+      transition: none;
+    }
+  }
+}
