@@ -7,6 +7,7 @@ import { ServiceWorkerRegistration } from '@/components/pwa/ServiceWorkerRegistr
 import { ToastProvider } from '@/components/ui/toast';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import { AnalyticsProvider } from '@/lib/analytics';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -60,11 +61,13 @@ export default function RootLayout({
           <ThemeProvider>
             <ToastProvider>
               <AuthProvider>
-                <AppLayout>
-                  <main id="main-content" tabIndex={-1}>
-                    {children}
-                  </main>
-                </AppLayout>
+                <AnalyticsProvider>
+                  <AppLayout>
+                    <main id="main-content" tabIndex={-1}>
+                      {children}
+                    </main>
+                  </AppLayout>
+                </AnalyticsProvider>
               </AuthProvider>
             </ToastProvider>
           </ThemeProvider>
