@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
-import { Trophy, Zap, Star } from 'lucide-react'
+import { Trophy, Zap, Star, Moon, Sun } from 'lucide-react'
 import type { ExperienceLevel } from '@/types/onboarding'
 
 interface UserProfile {
@@ -298,6 +298,47 @@ export default function ProfilePage() {
                     checked={formData.gamification_enabled}
                     onCheckedChange={(checked) => handleInputChange('gamification_enabled', checked)}
                   />
+                </div>
+
+                {/* Theme Settings - Disabled for now */}
+                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50 opacity-60">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Sun className="h-5 w-5 text-gray-400" />
+                      <h4 className="font-medium text-gray-500">
+                        Thème de l'interface
+                      </h4>
+                      <Badge className="bg-gray-100 text-gray-600">
+                        Mode Clair
+                      </Badge>
+                      <Badge className="bg-blue-50 text-blue-600 text-xs">
+                        Bientôt disponible
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Le mode sombre sera disponible dans une prochaine mise à jour
+                    </p>
+                    
+                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Sun className="h-3 w-3" />
+                        Mode clair uniquement
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Moon className="h-3 w-3" />
+                        En développement
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    disabled
+                    className="cursor-not-allowed"
+                  >
+                    <Sun className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
