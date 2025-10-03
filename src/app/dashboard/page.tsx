@@ -8,9 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, lazy, Suspense } from 'react'
 import { GamificationSystem, UserGameData } from '@/lib/gamification'
-import { 
-  Zap, 
-  Trophy, 
+import {
+  Zap,
+  Trophy,
   Target,
   BarChart3,
   Heart
@@ -65,10 +65,16 @@ export default function DashboardPage() {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
+
+      // If no profile exists, redirect to onboarding
+      if (!profileData) {
+        router.push('/onboarding')
+        return
+      }
 
       setProfile(profileData)
-      
+
       // Set gamification preference
       setGamificationEnabled(profileData?.gamification_enabled ?? true)
 
@@ -78,7 +84,7 @@ export default function DashboardPage() {
         .select('*')
         .eq('user_id', user.id)
         .eq('status', 'active')
-        .single()
+        .maybeSingle()
 
       setProgram(programData)
     }
@@ -138,7 +144,7 @@ export default function DashboardPage() {
                   🎯 Your Program is Ready!
                 </h2>
                 <p className="text-gray-600 mb-4">
-                  We've created a personalized training program based on your fitness level and goals. 
+                  We've created a personalized training program based on your fitness level and goals.
                   Your journey to calisthenics mastery starts now!
                 </p>
                 <Button onClick={() => setIsWelcome(false)}>
@@ -192,7 +198,7 @@ export default function DashboardPage() {
                         <p>• Started {new Date(program.started_at).toLocaleDateString()}</p>
                         <p>• Status: <span className="font-medium text-green-600">{program.status}</span></p>
                       </div>
-                      <Button 
+                      <Button
                         className="w-full"
                         onClick={() => router.push('/workout/start')}
                       >
@@ -204,7 +210,7 @@ export default function DashboardPage() {
                       <p className="text-sm text-gray-600">
                         Ready to start your calisthenics journey!
                       </p>
-                      <Button 
+                      <Button
                         className="mt-4 w-full"
                         onClick={() => router.push('/onboarding')}
                       >
@@ -230,7 +236,7 @@ export default function DashboardPage() {
                     )}
                   </CardTitle>
                   <CardDescription>
-                    {gamificationEnabled 
+                    {gamificationEnabled
                       ? `Niveau ${gameData.level} • ${gameData.xp} XP`
                       : 'Suivez vos progrès'
                     }
@@ -244,7 +250,7 @@ export default function DashboardPage() {
                           <span>Record: {gameData.streak.longest} jours</span>
                           <span className="text-green-600 font-medium">Actif</span>
                         </div>
-                        <Button 
+                        <Button
                           className="w-full"
                           onClick={() => router.push('/workout/start')}
                         >
@@ -258,7 +264,7 @@ export default function DashboardPage() {
                           <p>• {gameData.streak.current} jours consécutifs</p>
                           <p>• Record: {gameData.streak.longest} jours</p>
                         </div>
-                        <Button 
+                        <Button
                           className="w-full"
                           onClick={() => router.push('/analytics')}
                         >
@@ -297,7 +303,7 @@ export default function DashboardPage() {
 
               <TabsContent value="motivation" className="space-y-6">
                 <Suspense fallback={<ComponentLoader />}>
-                  <MotivationCenter 
+                  <MotivationCenter
                     userLevel={gameData.level}
                     streak={gameData.streak.current}
                     lastLoginDate={gameData.lastLoginDate}
@@ -306,62 +312,62 @@ export default function DashboardPage() {
               </TabsContent>
 
               <TabsContent value="challenges" className="space-y-6">
-            {gameData.weeklyChallenge && (
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <Target className="h-6 w-6 text-green-600" />
-                  Défis & Challenges
-                </h2>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <span className="text-2xl">{gameData.weeklyChallenge.icon}</span>
-                      {gameData.weeklyChallenge.title}
-                    </CardTitle>
-                    <CardDescription>
-                      Défi de la semaine • {gameData.weeklyChallenge.xpReward} XP
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-gray-700">
-                      {gameData.weeklyChallenge.description}
-                    </p>
-                    
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium">Progression</span>
-                        <span className="text-sm text-gray-600">
-                          {gameData.weeklyChallenge.current} / {gameData.weeklyChallenge.target}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div 
-                          className="bg-green-500 h-3 rounded-full transition-all duration-300"
-                          style={{ width: `${(gameData.weeklyChallenge.current / gameData.weeklyChallenge.target) * 100}%` }}
-                        />
-                      </div>
-                    </div>
+                {gameData.weeklyChallenge && (
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                      <Target className="h-6 w-6 text-green-600" />
+                      Défis & Challenges
+                    </h2>
 
-                    <div className="flex items-center justify-between pt-2">
-                      <div className="text-sm text-gray-600">
-                        Se termine le {new Date(gameData.weeklyChallenge.endDate).toLocaleDateString('fr-FR')}
-                      </div>
-                      {gameData.weeklyChallenge.completed ? (
-                        <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
-                          <Trophy className="h-4 w-4" />
-                          Complété !
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <span className="text-2xl">{gameData.weeklyChallenge.icon}</span>
+                          {gameData.weeklyChallenge.title}
+                        </CardTitle>
+                        <CardDescription>
+                          Défi de la semaine • {gameData.weeklyChallenge.xpReward} XP
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-gray-700">
+                          {gameData.weeklyChallenge.description}
+                        </p>
+
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-medium">Progression</span>
+                            <span className="text-sm text-gray-600">
+                              {gameData.weeklyChallenge.current} / {gameData.weeklyChallenge.target}
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div
+                              className="bg-green-500 h-3 rounded-full transition-all duration-300"
+                              style={{ width: `${(gameData.weeklyChallenge.current / gameData.weeklyChallenge.target) * 100}%` }}
+                            />
+                          </div>
                         </div>
-                      ) : (
-                        <Button size="sm" onClick={() => router.push('/workout/start')}>
-                          Progresser
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+
+                        <div className="flex items-center justify-between pt-2">
+                          <div className="text-sm text-gray-600">
+                            Se termine le {new Date(gameData.weeklyChallenge.endDate).toLocaleDateString('fr-FR')}
+                          </div>
+                          {gameData.weeklyChallenge.completed ? (
+                            <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
+                              <Trophy className="h-4 w-4" />
+                              Complété !
+                            </div>
+                          ) : (
+                            <Button size="sm" onClick={() => router.push('/workout/start')}>
+                              Progresser
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
               </TabsContent>
             </>
           )}
@@ -371,36 +377,36 @@ export default function DashboardPage() {
         <div className="mt-12">
           <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="h-16"
               onClick={() => router.push('/workout/start')}
             >
               🏋️ Start Workout
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="h-16"
               onClick={() => router.push('/programs')}
             >
               📈 My Programs
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="h-16"
               onClick={() => router.push('/analytics')}
             >
               📊 Analytics
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="h-16"
               onClick={() => router.push('/profile')}
             >
               ⚙️ Profile
             </Button>
           </div>
-          
+
           {/* Gamification Promotion */}
           {!gamificationEnabled && (
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -413,8 +419,8 @@ export default function DashboardPage() {
                   <p className="text-sm text-blue-700 mb-3">
                     Activez le mode gamification pour débloquer les niveaux, XP, défis et achievements qui vous aideront à rester motivé.
                   </p>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     onClick={() => router.push('/profile')}
                     className="bg-blue-600 hover:bg-blue-700"
                   >

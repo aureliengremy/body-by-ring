@@ -25,7 +25,7 @@ export default function Home() {
         .from('profiles')
         .select('experience_level, full_name')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
       if (!profile?.experience_level || !profile?.full_name) {
         // User needs onboarding
@@ -62,7 +62,7 @@ export default function Home() {
         <p className="text-lg text-gray-600 mb-8">
           Professional calisthenics training with tendon-safe progressions
         </p>
-        <Button 
+        <Button
           onClick={() => router.push('/auth')}
           size="lg"
           className="w-full"

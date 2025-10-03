@@ -57,7 +57,7 @@ export default function ProfilePage() {
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single()
+          .maybeSingle()
 
         if (error) {
           if (error.code === 'PGRST116') {
@@ -149,14 +149,14 @@ export default function ProfilePage() {
       <div className="max-w-2xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.push('/dashboard')}
             className="mb-4"
           >
             ← Back to Dashboard
           </Button>
-          
+
           <h1 className="text-3xl font-bold text-gray-900">
             Profile Settings
           </h1>
@@ -173,7 +173,7 @@ export default function ProfilePage() {
               Update your profile details. Changes to your experience level may affect your training program.
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Success/Error Messages */}
@@ -182,7 +182,7 @@ export default function ProfilePage() {
                   {success}
                 </div>
               )}
-              
+
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                   {error}
@@ -270,12 +270,12 @@ export default function ProfilePage() {
                       )}
                     </div>
                     <p className="text-sm text-gray-600">
-                      {formData.gamification_enabled 
+                      {formData.gamification_enabled
                         ? "Affiche les niveaux, XP, séries et défis pour rendre l'entraînement plus motivant"
                         : "Interface simplifiée sans éléments de gamification"
                       }
                     </p>
-                    
+
                     {formData.gamification_enabled && (
                       <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                         <div className="flex items-center gap-1">
@@ -293,7 +293,7 @@ export default function ProfilePage() {
                       </div>
                     )}
                   </div>
-                  
+
                   <Switch
                     checked={formData.gamification_enabled}
                     onCheckedChange={(checked) => handleInputChange('gamification_enabled', checked)}
@@ -318,7 +318,7 @@ export default function ProfilePage() {
                     <p className="text-sm text-gray-500">
                       Le mode sombre sera disponible dans une prochaine mise à jour
                     </p>
-                    
+
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
                       <div className="flex items-center gap-1">
                         <Sun className="h-3 w-3" />
@@ -330,10 +330,10 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+
+                  <Button
+                    variant="outline"
+                    size="sm"
                     disabled
                     className="cursor-not-allowed"
                   >
