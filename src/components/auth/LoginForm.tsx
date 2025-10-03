@@ -22,10 +22,14 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
   const { signIn, signUp } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // Check if passwords match (only if both fields have values)
+  const passwordsMatch = password && confirmPassword && password === confirmPassword;
+  const passwordsDontMatch = password && confirmPassword && password !== confirmPassword;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,38 +38,32 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
 
     try {
       if (isSignUp) {
-        console.log("📝 Attempting sign up...");
-        const result = await signUp(email, password, fullName);
-        console.log("✅ Sign up result:", result);
+        // Validate password confirmation
+        if (password !== confirmPassword) {
+          throw new Error("Passwords do not match");
+        }
+
+        const result = await signUp(email, password);
 
         if (result.error) {
-          console.error("❌ Sign up error:", result.error);
           throw result.error;
         }
 
         // Vérifier si l'utilisateur a été créé
         if (result.data?.user) {
-          console.log("✅ User created successfully:", result.data.user);
           setShowConfirmation(true);
           return;
         }
-
-        console.log("✅ Sign up successful with session");
       } else {
-        console.log("🔑 Attempting sign in...");
         const result = await signIn(email, password);
-        console.log("✅ Sign in result:", result);
 
         if (result.error) {
-          console.error("❌ Sign in error:", result.error);
           throw result.error;
         }
       }
     } catch (error: any) {
-      console.error("💥 Auth error:", error);
       setError(error.message);
     } finally {
-      console.log("⏹️ Setting loading to false");
       setLoading(false);
     }
   }
@@ -85,9 +83,6 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
 
         <CardContent className="text-center space-y-4">
           <div className="bg-green-50 p-4 rounded-lg">
-            <p className="text-sm text-green-800 mb-2">
-              <strong>Compte créé pour :</strong> {fullName}
-            </p>
             <p className="text-sm text-green-600">
               Votre compte a été créé avec l'email : <strong>{email}</strong>
             </p>
@@ -99,12 +94,9 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
                 const result = await signIn(email, password);
                 if (result.error) {
                   setShowConfirmation(false);
-                  onToggleMode(); // Basculer vers le mode connexion
-                } else {
-                  console.log("✅ Auto sign-in successful");
+                  onToggleMode();
                 }
-              } catch (error) {
-                console.error("💥 Auto sign-in error:", error);
+              } catch {
                 setShowConfirmation(false);
                 onToggleMode();
               }
@@ -133,19 +125,6 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
 
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {isSignUp && (
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required={isSignUp}
-              />
-            </div>
-          )}
-
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -166,8 +145,50 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
+              className={
+                isSignUp && password
+                  ? passwordsMatch
+                    ? "border-green-500 focus-visible:ring-green-500"
+                    : passwordsDontMatch
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                  : ""
+              }
             />
           </div>
+
+          {isSignUp && (
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required={isSignUp}
+                minLength={6}
+                className={
+                  confirmPassword
+                    ? passwordsMatch
+                      ? "border-green-500 focus-visible:ring-green-500"
+                      : passwordsDontMatch
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                    : ""
+                }
+              />
+              {passwordsMatch && (
+                <p className="text-sm text-green-600 flex items-center gap-1">
+                  ✓ Passwords match
+                </p>
+              )}
+              {passwordsDontMatch && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  ✗ Passwords do not match
+                </p>
+              )}
+            </div>
+          )}
 
           {error && (
             <div className="text-red-600 text-sm bg-red-50 p-3 rounded">

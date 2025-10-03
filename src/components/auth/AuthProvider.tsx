@@ -7,7 +7,7 @@ interface AuthContextType {
   user: AuthUser
   loading: boolean
   signIn: (email: string, password: string) => Promise<any>
-  signUp: (email: string, password: string, fullName?: string) => Promise<any>
+  signUp: (email: string, password: string) => Promise<any>
   signOut: () => Promise<void>
 }
 

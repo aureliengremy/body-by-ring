@@ -6,15 +6,10 @@ export type AuthUser = User | null
 // Auth helper functions
 export const auth = {
   // Sign up with email/password
-  async signUp(email: string, password: string, fullName?: string) {
+  async signUp(email: string, password: string) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-        }
-      }
     })
 
     // Profile will be created during onboarding flow
