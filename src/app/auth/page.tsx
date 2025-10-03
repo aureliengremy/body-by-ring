@@ -12,7 +12,8 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (user && !loading) {
-      router.push('/dashboard')
+      // Rediriger vers l'onboarding pour les nouveaux utilisateurs
+      router.push('/onboarding')
     }
   }, [user, loading, router])
 

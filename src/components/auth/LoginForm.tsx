@@ -29,7 +29,6 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log("🔄 Form submitted:", { isSignUp, email, fullName });
     setLoading(true);
     setError(null);
 
@@ -44,9 +43,9 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
           throw result.error;
         }
 
-        // Si pas de session mais utilisateur créé = confirmation email requise
-        if (result.data?.user && !result.data?.session) {
-          console.log("📧 Email confirmation required");
+        // Vérifier si l'utilisateur a été créé
+        if (result.data?.user) {
+          console.log("✅ User created successfully:", result.data.user);
           setShowConfirmation(true);
           return;
         }
@@ -56,7 +55,6 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
         console.log("🔑 Attempting sign in...");
         const result = await signIn(email, password);
         console.log("✅ Sign in result:", result);
-        console.log(showConfirmation);
 
         if (result.error) {
           console.error("❌ Sign in error:", result.error);
@@ -73,7 +71,6 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
   }
 
   // Page de confirmation d'inscription
-  console.log("🔍 showConfirmation state:", showConfirmation);
   if (showConfirmation) {
     return (
       <Card className="w-full max-w-md mx-auto">
@@ -81,24 +78,41 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
           <CardTitle className="text-2xl text-green-600">
             Compte créé avec succès ! ✅
           </CardTitle>
-          <CardDescription>Vérifiez votre boîte email</CardDescription>
+          <CardDescription>
+            Vous pouvez maintenant vous connecter
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="text-center space-y-4">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm text-blue-800 mb-2">
-              <strong>Email envoyé à :</strong> {email}
+          <div className="bg-green-50 p-4 rounded-lg">
+            <p className="text-sm text-green-800 mb-2">
+              <strong>Compte créé pour :</strong> {fullName}
             </p>
-            <p className="text-sm text-blue-600">
-              Cliquez sur le lien de confirmation dans votre email pour activer
-              votre compte et commencer votre entraînement.
+            <p className="text-sm text-green-600">
+              Votre compte a été créé avec l'email : <strong>{email}</strong>
             </p>
           </div>
 
-          <div className="text-xs text-gray-500 space-y-1">
-            <p>• Vérifiez aussi votre dossier spam/courrier indésirable</p>
-            <p>• Le lien est valide pendant 24 heures</p>
-          </div>
+          <Button
+            onClick={async () => {
+              try {
+                const result = await signIn(email, password);
+                if (result.error) {
+                  setShowConfirmation(false);
+                  onToggleMode(); // Basculer vers le mode connexion
+                } else {
+                  console.log("✅ Auto sign-in successful");
+                }
+              } catch (error) {
+                console.error("💥 Auto sign-in error:", error);
+                setShowConfirmation(false);
+                onToggleMode();
+              }
+            }}
+            className="w-full"
+          >
+            Se connecter maintenant
+          </Button>
         </CardContent>
       </Card>
     );
