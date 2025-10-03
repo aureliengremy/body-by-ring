@@ -144,13 +144,27 @@ export function OnboardingFlow() {
     setError(null);
 
     try {
-      // Create or update user profile (upsert)
+      // Create or update user profile (upsert) with all onboarding data
       const { error: profileError } = await supabase.from("profiles").upsert(
         {
           id: user.id,
           email: user.email,
           full_name: formData.full_name,
           experience_level: experienceLevel,
+          // Fitness Assessment
+          can_do_pushups: formData.can_do_pushups,
+          can_do_pullups: formData.can_do_pullups,
+          can_hold_plank: formData.can_hold_plank,
+          // Goals & Preferences
+          primary_goal: formData.primary_goal,
+          training_frequency: formData.training_frequency,
+          available_equipment: formData.available_equipment,
+          // Schedule
+          preferred_workout_days: formData.preferred_workout_days,
+          typical_workout_time: formData.typical_workout_time,
+          // Experience Details
+          previous_training: formData.previous_training,
+          injuries_or_limitations: formData.injuries_or_limitations || null,
         },
         {
           onConflict: "id",
