@@ -144,6 +144,15 @@ export function OnboardingFlow() {
     setError(null);
 
     try {
+      // Update user display name in auth.users table
+      const { error: updateUserError } = await supabase.auth.updateUser({
+        data: {
+          full_name: formData.full_name,
+        },
+      });
+
+      if (updateUserError) throw updateUserError;
+
       // Create or update user profile (upsert) with all onboarding data
       const { error: profileError } = await supabase.from("profiles").upsert(
         {
