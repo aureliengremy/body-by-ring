@@ -13,7 +13,7 @@ interface OnboardingStepProps {
   step: OnboardingStepType
   formData: Partial<OnboardingData>
   onUpdate: (data: Partial<OnboardingData>) => void
-  onNext: () => void
+  onNext: (dataFromStep?: Partial<OnboardingData>) => void
   onPrevious: () => void
   canGoBack: boolean
   isLastStep: boolean
@@ -30,6 +30,7 @@ export function OnboardingStep({
 }: OnboardingStepProps) {
   const [currentAnswers, setCurrentAnswers] = useState<Record<string, any>>({})
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const [isProcessing, setIsProcessing] = useState(false)
 
   // Initialize current answers from form data
   useEffect(() => {
@@ -38,6 +39,9 @@ export function OnboardingStep({
       const value = formData[question.id as keyof OnboardingData]
       if (value !== undefined) {
         answers[question.id] = value
+      } else if (question.type === 'multiselect') {
+        // Initialiser les champs multiselect comme tableaux vides
+        answers[question.id] = []
       }
     })
     setCurrentAnswers(answers)
@@ -59,10 +63,10 @@ export function OnboardingStep({
   // Handle multi-select changes
   function handleMultiSelectChange(questionId: string, optionValue: string, checked: boolean) {
     const currentArray = currentAnswers[questionId] || []
-    const newArray = checked 
+    const newArray = checked
       ? [...currentArray, optionValue]
       : currentArray.filter((item: string) => item !== optionValue)
-    
+
     handleInputChange(questionId, newArray)
   }
 
@@ -74,9 +78,9 @@ export function OnboardingStep({
     step.questions.forEach(question => {
       if (question.required) {
         const value = currentAnswers[question.id]
-        
-        if (value === undefined || value === null || value === '' || 
-            (Array.isArray(value) && value.length === 0)) {
+
+        if (value === undefined || value === null || value === '' ||
+          (Array.isArray(value) && value.length === 0)) {
           errors[question.id] = 'This field is required'
           isValid = false
         } else if (question.type === 'number') {
@@ -103,7 +107,19 @@ export function OnboardingStep({
   function handleNext() {
     if (validateStep()) {
       onUpdate(currentAnswers)
-      onNext()
+
+      // Si c'est la dernière étape, activer le timer et l'état de processing
+      if (isLastStep) {
+        setIsProcessing(true)
+
+        setTimeout(() => {
+          setIsProcessing(false)
+          // Passer les réponses de l'étape au parent pour éviter tout souci de synchro d'état
+          onNext(currentAnswers)
+        }, 2000) // 2 secondes pour être sûr
+      } else {
+        onNext()
+      }
     }
   }
 
@@ -228,7 +244,7 @@ export function OnboardingStep({
           {step.description}
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Questions */}
         <div className="space-y-6">
@@ -244,12 +260,20 @@ export function OnboardingStep({
           >
             Previous
           </Button>
-          
-          <Button 
+
+          <Button
             onClick={handleNext}
             className="px-8"
+            disabled={isProcessing}
           >
-            {isLastStep ? 'Complete Setup' : 'Next'}
+            {isProcessing ? (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Préparation de votre programme...</span>
+              </div>
+            ) : (
+              isLastStep ? 'Complete Setup' : 'Next'
+            )}
           </Button>
         </div>
       </CardContent>
