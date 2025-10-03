@@ -91,8 +91,8 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
 
   {
     id: 'equipment-schedule',
-    title: 'Equipment & Schedule ⏰',
-    description: 'Let\'s set up your training environment and schedule.',
+    title: 'Equipment, Schedule & Background ⏰',
+    description: 'Let\'s set up your training environment, schedule, and understand your experience.',
     questions: [
       {
         id: 'available_equipment',
@@ -119,15 +119,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
           { value: 'evening', label: 'Evening (6PM - 10PM)' }
         ],
         required: true
-      }
-    ]
-  },
-
-  {
-    id: 'experience-background',
-    title: 'Your Training Background 📚',
-    description: 'Tell us about your previous experience to fine-tune your program.',
-    questions: [
+      },
       {
         id: 'previous_training',
         type: 'multiselect',
@@ -144,7 +136,15 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
           { value: 'none', label: 'No previous training experience' }
         ],
         required: true
-      },
+      }
+    ]
+  },
+
+  {
+    id: 'experience-background',
+    title: 'Health & Safety Information 🏥',
+    description: 'Finally, let us know about any health considerations to ensure your safety.',
+    questions: [
       {
         id: 'injuries_or_limitations',
         type: 'text',
