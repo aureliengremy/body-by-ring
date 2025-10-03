@@ -1,101 +1,113 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { useAuth } from '@/components/auth/AuthProvider'
-import { supabase } from '@/lib/supabase'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import type { Exercise } from '@/types/exercise'
-import { 
-  DIFFICULTY_LABELS, 
-  CATEGORY_INFO, 
-  getDifficultyColorClass, 
-  getCategoryColorClass 
-} from '@/types/exercise'
-import { ProgressionVisualization } from '@/components/exercises/ProgressionVisualization'
-import type { ExperienceLevel } from '@/types/onboarding'
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import type { Exercise } from "@/types/exercise";
+import {
+  DIFFICULTY_LABELS,
+  CATEGORY_INFO,
+  getDifficultyColorClass,
+  getCategoryColorClass,
+} from "@/types/exercise";
+import { ProgressionVisualization } from "@/components/exercises/ProgressionVisualization";
+import type { ExperienceLevel } from "@/types/onboarding";
 
 export default function ExerciseDetailPage() {
-  const { user, loading: authLoading } = useAuth()
-  const router = useRouter()
-  const params = useParams()
-  const exerciseId = params.id as string
-  
-  const [exercise, setExercise] = useState<Exercise | null>(null)
-  const [relatedExercises, setRelatedExercises] = useState<Exercise[]>([])
-  const [userExperienceLevel, setUserExperienceLevel] = useState<ExperienceLevel>('beginner')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const params = useParams();
+  const exerciseId = params.id as string;
+
+  const [exercise, setExercise] = useState<Exercise | null>(null);
+  const [relatedExercises, setRelatedExercises] = useState<Exercise[]>([]);
+  const [userExperienceLevel, setUserExperienceLevel] =
+    useState<ExperienceLevel>("beginner");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/auth')
+      router.push("/auth");
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading, router]);
 
   // Load exercise details
   useEffect(() => {
     async function loadExercise() {
-      if (!exerciseId) return
+      if (!exerciseId) return;
 
       try {
         // Load main exercise
         const { data: exerciseData, error: exerciseError } = await supabase
-          .from('exercises')
-          .select('*')
-          .eq('id', exerciseId)
-          .single()
+          .from("exercises")
+          .select("*")
+          .eq("id", exerciseId)
+          .single();
 
         if (exerciseError) {
-          if (exerciseError.code === 'PGRST116') {
-            setError('Exercise not found')
+          if (exerciseError.code === "PGRST116") {
+            setError("Exercise not found");
           } else {
-            throw exerciseError
+            throw exerciseError;
           }
-          return
+          return;
         }
 
-        setExercise(exerciseData)
+        setExercise(exerciseData);
 
         // Load user's experience level
         const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('experience_level')
-          .eq('id', user.id)
-          .single()
+          .from("profiles")
+          .select("experience_level")
+          .eq("id", user.id)
+          .maybeSingle();
 
         if (!profileError && profileData?.experience_level) {
-          setUserExperienceLevel(profileData.experience_level)
+          setUserExperienceLevel(profileData.experience_level);
         }
 
         // Load related exercises (same category, similar difficulty)
         const { data: relatedData, error: relatedError } = await supabase
-          .from('exercises')
-          .select('*')
-          .eq('category', exerciseData.category)
-          .neq('id', exerciseId)
-          .gte('difficulty_level', Math.max(1, exerciseData.difficulty_level - 2))
-          .lte('difficulty_level', Math.min(10, exerciseData.difficulty_level + 2))
-          .limit(4)
+          .from("exercises")
+          .select("*")
+          .eq("category", exerciseData.category)
+          .neq("id", exerciseId)
+          .gte(
+            "difficulty_level",
+            Math.max(1, exerciseData.difficulty_level - 2)
+          )
+          .lte(
+            "difficulty_level",
+            Math.min(10, exerciseData.difficulty_level + 2)
+          )
+          .limit(4);
 
         if (!relatedError && relatedData) {
-          setRelatedExercises(relatedData)
+          setRelatedExercises(relatedData);
         }
-
       } catch (err) {
-        console.error('Error loading exercise:', err)
-        setError('Failed to load exercise details')
+        console.error("Error loading exercise:", err);
+        setError("Failed to load exercise details");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
     if (user) {
-      loadExercise()
+      loadExercise();
     }
-  }, [user, exerciseId])
+  }, [user, exerciseId]);
 
   if (authLoading || loading) {
     return (
@@ -105,11 +117,11 @@ export default function ExerciseDetailPage() {
           <p className="text-lg text-gray-600">Loading exercise...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!user) {
-    return null // Will redirect
+    return null; // Will redirect
   }
 
   if (error || !exercise) {
@@ -118,7 +130,7 @@ export default function ExerciseDetailPage() {
         <div className="text-center">
           <div className="text-gray-400 text-6xl mb-4">❓</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {error || 'Exercise Not Found'}
+            {error || "Exercise Not Found"}
           </h2>
           <p className="text-gray-600 mb-6">
             The exercise you're looking for doesn't exist or couldn't be loaded.
@@ -127,25 +139,28 @@ export default function ExerciseDetailPage() {
             <Button onClick={() => router.back()} variant="outline">
               Go Back
             </Button>
-            <Button onClick={() => router.push('/exercises')}>
+            <Button onClick={() => router.push("/exercises")}>
               Browse Exercises
             </Button>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  const difficultyInfo = DIFFICULTY_LABELS[exercise.difficulty_level as keyof typeof DIFFICULTY_LABELS]
-  const categoryInfo = CATEGORY_INFO[exercise.category]
+  const difficultyInfo =
+    DIFFICULTY_LABELS[
+      exercise.difficulty_level as keyof typeof DIFFICULTY_LABELS
+    ];
+  const categoryInfo = CATEGORY_INFO[exercise.category];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Navigation */}
         <div className="mb-6">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.back()}
             className="mb-4"
           >
@@ -159,17 +174,26 @@ export default function ExerciseDetailPage() {
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <CardTitle className="text-3xl mb-4">{exercise.name}</CardTitle>
-                
+
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{categoryInfo.emoji}</span>
-                    <span className={`px-3 py-1 rounded-lg font-medium ${getCategoryColorClass(exercise.category)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-lg font-medium ${getCategoryColorClass(
+                        exercise.category
+                      )}`}
+                    >
                       {categoryInfo.name}
                     </span>
                   </div>
-                  
-                  <span className={`px-4 py-2 rounded-full font-medium border ${getDifficultyColorClass(exercise.difficulty_level)}`}>
-                    Level {exercise.difficulty_level} - {difficultyInfo?.label || 'Unknown'}
+
+                  <span
+                    className={`px-4 py-2 rounded-full font-medium border ${getDifficultyColorClass(
+                      exercise.difficulty_level
+                    )}`}
+                  >
+                    Level {exercise.difficulty_level} -{" "}
+                    {difficultyInfo?.label || "Unknown"}
                   </span>
                 </div>
               </div>
@@ -179,7 +203,7 @@ export default function ExerciseDetailPage() {
               {categoryInfo.description} • {difficultyInfo?.description}
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <div className="space-y-8">
               {/* Video/Image Placeholder */}
@@ -187,13 +211,19 @@ export default function ExerciseDetailPage() {
                 {exercise.video_url ? (
                   <div className="text-center">
                     <div className="text-4xl mb-2">🎥</div>
-                    <p className="text-gray-600">Video demonstration coming soon</p>
-                    <p className="text-sm text-gray-500 mt-1">URL: {exercise.video_url}</p>
+                    <p className="text-gray-600">
+                      Video demonstration coming soon
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      URL: {exercise.video_url}
+                    </p>
                   </div>
                 ) : (
                   <div className="text-center">
                     <div className="text-4xl mb-2">{categoryInfo.emoji}</div>
-                    <p className="text-gray-600">Visual demonstration coming soon</p>
+                    <p className="text-gray-600">
+                      Visual demonstration coming soon
+                    </p>
                   </div>
                 )}
               </div>
@@ -213,9 +243,9 @@ export default function ExerciseDetailPage() {
                 <div>
                   <h4 className="font-semibold mb-3">Primary Muscles</h4>
                   <div className="flex flex-wrap gap-2">
-                    {categoryInfo.muscles.map(muscle => (
-                      <span 
-                        key={muscle} 
+                    {categoryInfo.muscles.map((muscle) => (
+                      <span
+                        key={muscle}
                         className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
                       >
                         {muscle}
@@ -229,47 +259,72 @@ export default function ExerciseDetailPage() {
                   <div className="flex flex-wrap gap-2">
                     {(() => {
                       // Determine equipment based on exercise category and requirements
-                      const equipment = []
-                      
+                      const equipment = [];
+
                       // Default: Bodyweight exercises
-                      if (exercise.category === 'strength' || exercise.category === 'conditioning') {
-                        equipment.push({ name: 'Bodyweight Only', color: 'green' })
+                      if (
+                        exercise.category === "strength" ||
+                        exercise.category === "conditioning"
+                      ) {
+                        equipment.push({
+                          name: "Bodyweight Only",
+                          color: "green",
+                        });
                       }
-                      
+
                       // Add rings for ring-specific exercises
-                      if (exercise.name.toLowerCase().includes('ring') || 
-                          exercise.category === 'rings') {
-                        equipment.push({ name: 'Gymnastic Rings', color: 'blue' })
+                      if (
+                        exercise.name.toLowerCase().includes("ring") ||
+                        exercise.category === "rings"
+                      ) {
+                        equipment.push({
+                          name: "Gymnastic Rings",
+                          color: "blue",
+                        });
                       }
-                      
+
                       // Add pull-up bar for hanging exercises
-                      if (exercise.name.toLowerCase().includes('pull') || 
-                          exercise.name.toLowerCase().includes('hang') ||
-                          exercise.name.toLowerCase().includes('chin')) {
-                        equipment.push({ name: 'Pull-up Bar', color: 'purple' })
+                      if (
+                        exercise.name.toLowerCase().includes("pull") ||
+                        exercise.name.toLowerCase().includes("hang") ||
+                        exercise.name.toLowerCase().includes("chin")
+                      ) {
+                        equipment.push({
+                          name: "Pull-up Bar",
+                          color: "purple",
+                        });
                       }
-                      
+
                       // Add parallettes for specific exercises
-                      if (exercise.name.toLowerCase().includes('l-sit') || 
-                          exercise.name.toLowerCase().includes('planche') ||
-                          exercise.name.toLowerCase().includes('handstand')) {
-                        equipment.push({ name: 'Parallettes (Optional)', color: 'orange' })
+                      if (
+                        exercise.name.toLowerCase().includes("l-sit") ||
+                        exercise.name.toLowerCase().includes("planche") ||
+                        exercise.name.toLowerCase().includes("handstand")
+                      ) {
+                        equipment.push({
+                          name: "Parallettes (Optional)",
+                          color: "orange",
+                        });
                       }
-                      
+
                       return equipment.map((item, index) => (
-                        <span 
+                        <span
                           key={index}
                           className={`px-3 py-1 text-sm rounded-full ${
-                            item.color === 'green' ? 'bg-green-100 text-green-800' :
-                            item.color === 'blue' ? 'bg-blue-100 text-blue-800' :
-                            item.color === 'purple' ? 'bg-purple-100 text-purple-800' :
-                            item.color === 'orange' ? 'bg-orange-100 text-orange-800' :
-                            'bg-gray-100 text-gray-800'
+                            item.color === "green"
+                              ? "bg-green-100 text-green-800"
+                              : item.color === "blue"
+                              ? "bg-blue-100 text-blue-800"
+                              : item.color === "purple"
+                              ? "bg-purple-100 text-purple-800"
+                              : item.color === "orange"
+                              ? "bg-orange-100 text-orange-800"
+                              : "bg-gray-100 text-gray-800"
                           }`}
                         >
                           {item.name}
                         </span>
-                      ))
+                      ));
                     })()}
                   </div>
                 </div>
@@ -277,22 +332,18 @@ export default function ExerciseDetailPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-4 pt-4 border-t">
-                <Button className="flex-1">
-                  Add to Current Workout
-                </Button>
+                <Button className="flex-1">Add to Current Workout</Button>
                 <Button variant="outline" className="flex-1">
                   Save to Favorites
                 </Button>
-                <Button variant="outline">
-                  Share Exercise
-                </Button>
+                <Button variant="outline">Share Exercise</Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Progression Visualization */}
-        <ProgressionVisualization 
+        <ProgressionVisualization
           exercise={exercise}
           userExperienceLevel={userExperienceLevel}
         />
@@ -308,17 +359,24 @@ export default function ExerciseDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {relatedExercises.map(related => {
-                  const relatedDifficulty = DIFFICULTY_LABELS[related.difficulty_level as keyof typeof DIFFICULTY_LABELS]
+                {relatedExercises.map((related) => {
+                  const relatedDifficulty =
+                    DIFFICULTY_LABELS[
+                      related.difficulty_level as keyof typeof DIFFICULTY_LABELS
+                    ];
                   return (
-                    <div 
+                    <div
                       key={related.id}
                       onClick={() => router.push(`/exercises/${related.id}`)}
                       className="p-4 border rounded-lg hover:shadow-md cursor-pointer transition-shadow"
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-medium">{related.name}</h4>
-                        <span className={`px-2 py-1 text-xs rounded-full ${getDifficultyColorClass(related.difficulty_level)}`}>
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${getDifficultyColorClass(
+                            related.difficulty_level
+                          )}`}
+                        >
                           L{related.difficulty_level}
                         </span>
                       </div>
@@ -326,7 +384,7 @@ export default function ExerciseDetailPage() {
                         {related.instructions.substring(0, 100)}...
                       </p>
                     </div>
-                  )
+                  );
                 })}
               </div>
             </CardContent>
@@ -334,5 +392,5 @@ export default function ExerciseDetailPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
