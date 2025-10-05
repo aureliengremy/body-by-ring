@@ -119,56 +119,56 @@ export interface ExerciseSelection {
   };
 }
 
-// Training parameters by experience level
+// Training parameters by experience level (Daniel Vadel approach)
 export const LEVEL_PARAMETERS = {
   beginner: {
     sets_per_exercise: { min: 2, max: 3 },
-    reps_range: { min: 5, max: 12 },
+    reps_range: { min: 6, max: 10 }, // Focus on technique and building base strength
     rest_seconds: { strength: 120, endurance: 60 },
     sessions_per_week: { min: 2, max: 3 },
-    exercises_per_session: { min: 4, max: 6 },
+    exercises_per_session: { min: 4, max: 5 },
   },
   intermediate: {
     sets_per_exercise: { min: 3, max: 4 },
-    reps_range: { min: 6, max: 15 },
+    reps_range: { min: 8, max: 12 }, // Hypertrophy sweet spot
     rest_seconds: { strength: 150, endurance: 90 },
     sessions_per_week: { min: 3, max: 4 },
-    exercises_per_session: { min: 5, max: 7 },
+    exercises_per_session: { min: 4, max: 6 },
   },
   advanced: {
     sets_per_exercise: { min: 3, max: 5 },
-    reps_range: { min: 5, max: 20 },
+    reps_range: { min: 5, max: 15 }, // Mix of strength and hypertrophy
     rest_seconds: { strength: 180, endurance: 120 },
     sessions_per_week: { min: 4, max: 6 },
-    exercises_per_session: { min: 6, max: 8 },
+    exercises_per_session: { min: 5, max: 7 },
   },
 } as const;
 
-// Goal-specific modifications
+// Goal-specific modifications (Daniel Vadel approach - moderate adjustments)
 export const GOAL_MODIFIERS = {
   strength: {
-    rep_adjustment: -2, // Lower reps for strength
-    rest_multiplier: 1.2, // More rest
+    rep_adjustment: -1, // Slightly lower reps for strength (still quality reps)
+    rest_multiplier: 1.2, // More rest for full recovery
     intensity_focus: "high",
   },
   muscle_building: {
-    rep_adjustment: 2, // Higher reps for hypertrophy
+    rep_adjustment: 1, // Slightly higher reps for hypertrophy
     rest_multiplier: 1.0, // Standard rest
     intensity_focus: "moderate",
   },
   endurance: {
-    rep_adjustment: 5, // Much higher reps
-    rest_multiplier: 0.7, // Less rest
+    rep_adjustment: 3, // Higher reps but not excessive
+    rest_multiplier: 0.8, // Less rest but not too short
     intensity_focus: "low",
   },
   skill_development: {
-    rep_adjustment: -3, // Lower reps for skill work
-    rest_multiplier: 1.5, // More rest for skill practice
+    rep_adjustment: -2, // Lower reps for quality skill practice
+    rest_multiplier: 1.3, // More rest for nervous system recovery
     intensity_focus: "technique",
   },
   weight_loss: {
-    rep_adjustment: 3, // Higher reps for metabolic effect
-    rest_multiplier: 0.8, // Less rest
+    rep_adjustment: 2, // Higher reps for metabolic effect
+    rest_multiplier: 0.85, // Slightly less rest
     intensity_focus: "metabolic",
   },
   general_fitness: {
