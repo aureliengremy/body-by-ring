@@ -28,7 +28,7 @@ const ComponentLoader = () => (
 )
 
 export default function DashboardPage() {
-  const { user, signOut, loading } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [profile, setProfile] = useState<any>(null)
@@ -110,11 +110,6 @@ export default function DashboardPage() {
         <div className="text-lg">Loading...</div>
       </div>
     )
-  }
-
-  async function handleSignOut() {
-    await signOut()
-    router.push('/')
   }
 
   return (

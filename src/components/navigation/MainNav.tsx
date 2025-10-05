@@ -102,7 +102,10 @@ export function MainNav({ variant = 'header' }: MainNavProps) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => signOut()}
+                onClick={async () => {
+                  await signOut()
+                  router.push('/auth')
+                }}
               >
                 Sign Out
               </Button>
