@@ -20,10 +20,9 @@ import {
   Pie,
   Cell
 } from 'recharts'
-import { 
-  TrendingUp, 
-  Calendar, 
-  Target, 
+import {
+  TrendingUp,
+  Target,
   Award,
   Activity,
   BarChart3
@@ -55,7 +54,6 @@ export default function AnalyticsPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const [workoutData, setWorkoutData] = useState<WorkoutData[]>([])
-  const [exerciseProgress, setExerciseProgress] = useState<ExerciseProgress[]>([])
   const [stats, setStats] = useState({
     totalWorkouts: 0,
     totalVolume: 0,
@@ -65,10 +63,11 @@ export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   // Redirect if not logged in
-  if (!loading && !user) {
-    router.push('/auth')
-    return null
-  }
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth')
+    }
+  }, [loading, user, router])
 
   useEffect(() => {
     async function loadAnalyticsData() {
