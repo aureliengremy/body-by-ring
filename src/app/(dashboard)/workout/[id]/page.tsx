@@ -10,9 +10,8 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
-import { 
+import {
   Play,
-  Pause,
   Check,
   X,
   Clock,
@@ -80,12 +79,9 @@ export default function ActiveWorkoutPage() {
   const [workoutNotes, setWorkoutNotes] = useState('')
 
   useEffect(() => {
-    if (user && workoutId) {
-      loadWorkoutData()
-    }
-  }, [user, workoutId])
+    async function loadWorkoutData() {
+      if (!user || !workoutId) return
 
-  async function loadWorkoutData() {
     try {
       setLoading(true)
 
@@ -141,7 +137,7 @@ export default function ActiveWorkoutPage() {
 
       // Group sets by exercise
       const groups: ExerciseGroup[] = []
-      const setsWithExercises = workoutData.sets.map((set: any) => ({
+      const setsWithExercises = workoutData.sets.map((set: { exercises: unknown; [key: string]: unknown }) => ({
         ...set,
         exercise: set.exercises
       }))
@@ -170,13 +166,16 @@ export default function ActiveWorkoutPage() {
         findCurrentPosition(groups)
       }
 
-    } catch (err) {
-      console.error('Error loading workout:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load workout')
-    } finally {
-      setLoading(false)
+      } catch (err) {
+        console.error('Error loading workout:', err)
+        setError(err instanceof Error ? err.message : 'Failed to load workout')
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    loadWorkoutData()
+  }, [user, workoutId])
 
   function findCurrentPosition(groups: ExerciseGroup[]) {
     for (let exerciseIndex = 0; exerciseIndex < groups.length; exerciseIndex++) {
@@ -691,7 +690,7 @@ function SetLogger({ set, isActive, onComplete }: SetLoggerProps) {
             <div>6-7: Easy, could do many more reps</div>
             <div>8: Hard, could do 2-3 more reps</div>
             <div>9: Very hard, could do 1 more rep</div>
-            <div>10: Maximum effort, couldn't do another rep</div>
+            <div>10: Maximum effort, couldn&apos;t do another rep</div>
           </div>
         </div>
       </CardContent>

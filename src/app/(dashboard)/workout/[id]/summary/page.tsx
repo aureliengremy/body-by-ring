@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
-import { 
+import {
   CheckCircle2,
   Trophy,
   Target,
@@ -17,10 +17,8 @@ import {
   Activity,
   TrendingUp,
   MessageSquare,
-  ArrowLeft,
   Home,
   Calendar,
-  Star,
   Save
 } from 'lucide-react'
 
@@ -79,14 +77,11 @@ export default function WorkoutSummaryPage() {
   const [showAddNotes, setShowAddNotes] = useState(false)
 
   useEffect(() => {
-    if (user && workoutId) {
-      loadWorkoutSummary()
-    }
-  }, [user, workoutId])
+    async function loadWorkoutSummary() {
+      if (!user || !workoutId) return
 
-  async function loadWorkoutSummary() {
-    try {
-      setLoading(true)
+      try {
+        setLoading(true)
 
       // Load completed workout with all data
       const { data: workoutData, error: workoutError } = await supabase
@@ -128,7 +123,7 @@ export default function WorkoutSummaryPage() {
         completed_at: workoutData.completed_at,
         notes: workoutData.notes,
         program: workoutData.programs,
-        sets: workoutData.sets.map((set: any) => ({
+        sets: workoutData.sets.map((set: { exercises: unknown; [key: string]: unknown }) => ({
           ...set,
           exercise: set.exercises
         }))
@@ -141,13 +136,16 @@ export default function WorkoutSummaryPage() {
       const stats = calculateExerciseStats(processedWorkout.sets)
       setExerciseStats(stats)
 
-    } catch (err) {
-      console.error('Error loading workout summary:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load workout summary')
-    } finally {
-      setLoading(false)
+      } catch (err) {
+        console.error('Error loading workout summary:', err)
+        setError(err instanceof Error ? err.message : 'Failed to load workout summary')
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    loadWorkoutSummary()
+  }, [user, workoutId])
 
   function calculateExerciseStats(sets: WorkoutSummary['sets']): ExerciseStats[] {
     const exerciseMap = new Map<string, ExerciseStats>()
@@ -347,7 +345,7 @@ export default function WorkoutSummaryPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {exerciseStats.map((exercise, index) => (
+              {exerciseStats.map((exercise) => (
                 <div key={exercise.name} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -476,7 +474,7 @@ export default function WorkoutSummaryPage() {
                           </div>
                           {set.notes && (
                             <div className="text-xs text-gray-500 mt-1 italic">
-                              "{set.notes}"
+                              &quot;{set.notes}&quot;
                             </div>
                           )}
                         </div>

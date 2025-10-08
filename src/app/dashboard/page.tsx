@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, lazy, Suspense } from 'react'
 import { GamificationSystem, UserGameData } from '@/lib/gamification'
+import { UserProfile } from '@/types/profile'
+import { Program } from '@/types/program'
 import {
   Zap,
   Trophy,
@@ -31,8 +33,8 @@ export default function DashboardPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [profile, setProfile] = useState<any>(null)
-  const [program, setProgram] = useState<any>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [program, setProgram] = useState<Program | null>(null)
   const [isWelcome, setIsWelcome] = useState(false)
   const [gamificationEnabled, setGamificationEnabled] = useState(true)
   const [gameData, setGameData] = useState<UserGameData>({
@@ -90,7 +92,7 @@ export default function DashboardPage() {
     }
 
     loadData()
-  }, [user, searchParams])
+  }, [user, searchParams, router])
 
   // Handle authentication redirect
   useEffect(() => {
@@ -139,11 +141,11 @@ export default function DashboardPage() {
                   🎯 Your Program is Ready!
                 </h2>
                 <p className="text-gray-600 mb-4">
-                  We've created a personalized training program based on your fitness level and goals.
+                  We&apos;ve created a personalized training program based on your fitness level and goals.
                   Your journey to calisthenics mastery starts now!
                 </p>
                 <Button onClick={() => setIsWelcome(false)}>
-                  Let's Get Started! 💪
+                  Let&apos;s Get Started! 💪
                 </Button>
               </div>
             </CardContent>

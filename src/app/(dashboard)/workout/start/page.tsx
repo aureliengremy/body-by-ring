@@ -8,9 +8,8 @@ import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
+import {
   Play,
-  Clock,
   Target,
   Activity,
   Calendar,
@@ -51,14 +50,11 @@ export default function StartWorkoutPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (user) {
-      loadAvailableWorkouts()
-    }
-  }, [user, programId])
+    async function loadAvailableWorkouts() {
+      if (!user) return
 
-  async function loadAvailableWorkouts() {
-    try {
-      setLoading(true)
+      try {
+        setLoading(true)
 
       let query = supabase
         .from('workouts')
@@ -95,7 +91,7 @@ export default function StartWorkoutPage() {
       const processedWorkouts = workoutData?.map(workout => ({
         ...workout,
         program: workout.programs,
-        sets: workout.sets?.map((set: any) => ({
+        sets: workout.sets?.map((set: { id: string; exercises: unknown }) => ({
           id: set.id,
           exercise: set.exercises
         })) || []
@@ -103,13 +99,16 @@ export default function StartWorkoutPage() {
 
       setWorkouts(processedWorkouts)
 
-    } catch (err) {
-      console.error('Error loading workouts:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load workouts')
-    } finally {
-      setLoading(false)
+      } catch (err) {
+        console.error('Error loading workouts:', err)
+        setError(err instanceof Error ? err.message : 'Failed to load workouts')
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    loadAvailableWorkouts()
+  }, [user, programId])
 
   const getSessionTypeLabel = (sessionType: string) => {
     const labels: Record<string, string> = {

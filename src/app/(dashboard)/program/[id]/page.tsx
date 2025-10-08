@@ -8,13 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  Calendar, 
-  Target, 
-  Activity, 
-  Clock, 
-  TrendingUp, 
-  Users,
+import {
+  Calendar,
+  Target,
+  Activity,
+  Clock,
+  TrendingUp,
   PlayCircle,
   CheckCircle2
 } from 'lucide-react'
@@ -64,64 +63,64 @@ export default function ProgramDetailPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (user && programId) {
-      loadProgramData()
-    }
-  }, [user, programId])
+    async function loadProgramData() {
+      if (!user || !programId) return
 
-  async function loadProgramData() {
-    try {
-      setLoading(true)
+      try {
+        setLoading(true)
 
-      // Load program details
-      const { data: programData, error: programError } = await supabase
-        .from('programs')
-        .select('*')
-        .eq('id', programId)
-        .eq('user_id', user?.id)
-        .single()
+        // Load program details
+        const { data: programData, error: programError } = await supabase
+          .from('programs')
+          .select('*')
+          .eq('id', programId)
+          .eq('user_id', user.id)
+          .single()
 
-      if (programError) throw programError
-      setProgram(programData)
+        if (programError) throw programError
+        setProgram(programData)
 
-      // Load workouts with sets and exercises
-      const { data: workoutData, error: workoutError } = await supabase
-        .from('workouts')
-        .select(`
-          *,
-          sets (
+        // Load workouts with sets and exercises
+        const { data: workoutData, error: workoutError } = await supabase
+          .from('workouts')
+          .select(`
             *,
-            exercises (
-              name,
-              category,
-              difficulty_level
+            sets (
+              *,
+              exercises (
+                name,
+                category,
+                difficulty_level
+              )
             )
-          )
-        `)
-        .eq('program_id', programId)
-        .order('week_number', { ascending: true })
-        .order('session_type', { ascending: true })
+          `)
+          .eq('program_id', programId)
+          .order('week_number', { ascending: true })
+          .order('session_type', { ascending: true })
 
-      if (workoutError) throw workoutError
-      
-      // Group sets by workout
-      const processedWorkouts = workoutData.map(workout => ({
-        ...workout,
-        sets: workout.sets.map((set: any) => ({
-          ...set,
-          exercise: set.exercises
+        if (workoutError) throw workoutError
+
+        // Group sets by workout
+        const processedWorkouts = workoutData.map(workout => ({
+          ...workout,
+          sets: workout.sets.map((set: { exercises: unknown; [key: string]: unknown }) => ({
+            ...set,
+            exercise: set.exercises
+          }))
         }))
-      }))
-      
-      setWorkouts(processedWorkouts)
 
-    } catch (err) {
-      console.error('Error loading program:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load program')
-    } finally {
-      setLoading(false)
+        setWorkouts(processedWorkouts)
+
+      } catch (err) {
+        console.error('Error loading program:', err)
+        setError(err instanceof Error ? err.message : 'Failed to load program')
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    loadProgramData()
+  }, [user, programId])
 
   const getSessionTypeLabel = (sessionType: string) => {
     const labels: Record<string, string> = {

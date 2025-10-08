@@ -80,7 +80,7 @@ export default function WorkoutsPage() {
             // Group sets by exercise
             const exerciseMap = new Map();
 
-            workout.sets?.forEach((set: any) => {
+            workout.sets?.forEach((set: { exercises: { id: string; [key: string]: unknown } }) => {
               const exercise = set.exercises;
               if (!exerciseMap.has(exercise.id)) {
                 exerciseMap.set(exercise.id, {
