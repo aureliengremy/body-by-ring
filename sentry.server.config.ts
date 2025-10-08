@@ -21,7 +21,7 @@ Sentry.init({
   release: process.env.npm_package_version,
   
   // Filter out development errors
-  beforeSend(event, hint) {
+  beforeSend(event, _hint) {
     // Don't send events in development
     if (config.env.isDevelopment) {
       console.log('Sentry event (server):', event)
