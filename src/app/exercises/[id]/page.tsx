@@ -133,7 +133,7 @@ export default function ExerciseDetailPage() {
             {error || "Exercise Not Found"}
           </h2>
           <p className="text-gray-600 mb-6">
-            The exercise you're looking for doesn't exist or couldn't be loaded.
+            The exercise you&apos;re looking for doesn&apos;t exist or couldn&apos;t be loaded.
           </p>
           <div className="flex gap-4 justify-center">
             <Button onClick={() => router.back()} variant="outline">
@@ -359,12 +359,7 @@ export default function ExerciseDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {relatedExercises.map((related) => {
-                  const relatedDifficulty =
-                    DIFFICULTY_LABELS[
-                      related.difficulty_level as keyof typeof DIFFICULTY_LABELS
-                    ];
-                  return (
+                {relatedExercises.map((related) => (
                     <div
                       key={related.id}
                       onClick={() => router.push(`/exercises/${related.id}`)}
@@ -384,8 +379,7 @@ export default function ExerciseDetailPage() {
                         {related.instructions.substring(0, 100)}...
                       </p>
                     </div>
-                  );
-                })}
+                ))}
               </div>
             </CardContent>
           </Card>

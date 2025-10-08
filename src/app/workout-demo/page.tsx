@@ -195,7 +195,7 @@ export default function WorkoutDemoPage() {
                 </p>
                 
                 <div className="space-y-2">
-                  <h4 className="font-semibold">Today's Exercises:</h4>
+                  <h4 className="font-semibold">Today&apos;s Exercises:</h4>
                   {workoutExercises.map((we, index) => (
                     <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
                       <span className="font-medium">{we.exercise.name}</span>
@@ -221,7 +221,7 @@ export default function WorkoutDemoPage() {
             <CardContent>
               <div className="space-y-4">
                 <p className="text-green-700">
-                  Great job! You've completed all exercises in this demo workout.
+                  Great job! You&apos;ve completed all exercises in this demo workout.
                 </p>
 
                 {/* Workout Summary */}

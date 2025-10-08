@@ -248,10 +248,10 @@ export default function ProfilePage() {
               <div className="space-y-4 pt-4 border-t border-gray-200">
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Préférences d'interface
+                    Préférences d&apos;interface
                   </h3>
                   <p className="text-sm text-gray-600 mb-4">
-                    Personnalisez votre expérience d'entraînement
+                    Personnalisez votre expérience d&apos;entraînement
                   </p>
                 </div>
 
@@ -306,7 +306,7 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-2 mb-1">
                       <Sun className="h-5 w-5 text-gray-400" />
                       <h4 className="font-medium text-gray-500">
-                        Thème de l'interface
+                        Thème de l&apos;interface
                       </h4>
                       <Badge className="bg-gray-100 text-gray-600">
                         Mode Clair

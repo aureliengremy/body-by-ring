@@ -64,7 +64,7 @@ export default function TestDbPage() {
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           <strong>Error:</strong> {error}
           <br />
-          <small>Make sure you've executed the database schema in Supabase Dashboard</small>
+          <small>Make sure you&apos;ve executed the database schema in Supabase Dashboard</small>
         </div>
       ) : (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
