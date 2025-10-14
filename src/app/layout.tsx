@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from '@/components/auth/AuthProvider';
-import { AppLayout } from '@/components/layout/AppLayout';
 import { ServiceWorkerRegistration } from '@/components/pwa/ServiceWorkerRegistration';
 import { ToastProvider } from '@/components/ui/toast';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
-import { AnalyticsProvider } from '@/lib/analytics';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,11 +45,11 @@ export const viewport = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -60,15 +57,7 @@ export default function RootLayout({
           <SkipNavigation />
           <ThemeProvider>
             <ToastProvider>
-              <AuthProvider>
-                <AnalyticsProvider>
-                  <AppLayout>
-                    <main id="main-content" tabIndex={-1}>
-                      {children}
-                    </main>
-                  </AppLayout>
-                </AnalyticsProvider>
-              </AuthProvider>
+              {children}
             </ToastProvider>
           </ThemeProvider>
         </ServiceWorkerRegistration>
