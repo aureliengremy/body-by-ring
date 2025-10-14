@@ -1,52 +1,47 @@
 'use client'
 
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname } from '@/lib/i18n/navigation'
+import { useTranslations } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth/AuthProvider'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 interface NavItem {
-  label: string
+  key: string
   href: string
   icon: string
-  description?: string
 }
 
 const NAV_ITEMS: NavItem[] = [
   {
-    label: 'Dashboard',
+    key: 'dashboard',
     href: '/dashboard',
     icon: '🏠',
-    description: 'Overview and quick actions'
   },
   {
-    label: 'Programs',
+    key: 'programs',
     href: '/programs',
     icon: '🎯',
-    description: 'Training programs and cycles'
   },
   {
-    label: 'My Workouts',
+    key: 'workouts',
     href: '/workouts',
     icon: '💪',
-    description: 'Training sessions and progress'
   },
   {
-    label: 'Analytics',
+    key: 'analytics',
     href: '/analytics',
     icon: '📊',
-    description: 'Progress tracking and insights'
   },
   {
-    label: 'Exercise Library',
+    key: 'exercises',
     href: '/exercises',
     icon: '📚',
-    description: 'Browse all movements'
   },
   {
-    label: 'Profile',
+    key: 'profile',
     href: '/profile',
     icon: '⚙️',
-    description: 'Settings and preferences'
   }
 ]
 
@@ -57,6 +52,7 @@ interface MainNavProps {
 export function MainNav({ variant = 'header' }: MainNavProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const t = useTranslations('nav')
   const { user, signOut } = useAuth()
 
   if (!user) return null
@@ -92,13 +88,14 @@ export function MainNav({ variant = 'header' }: MainNavProps) {
                   className="flex items-center gap-2"
                 >
                   <span>{item.icon}</span>
-                  {item.label}
+                  {t(item.key)}
                 </Button>
               ))}
             </div>
 
             {/* User Menu */}
             <div className="flex items-center gap-2">
+              <LanguageSwitcher />
               <Button
                 variant="outline"
                 size="sm"
@@ -107,7 +104,7 @@ export function MainNav({ variant = 'header' }: MainNavProps) {
                   router.push('/auth')
                 }}
               >
-                Sign Out
+                {t('signOut')}
               </Button>
             </div>
           </div>
@@ -135,15 +132,16 @@ export function MainNav({ variant = 'header' }: MainNavProps) {
                 <div className="flex items-center gap-3">
                   <span className="text-xl">{item.icon}</span>
                   <div>
-                    <div className="font-medium">{item.label}</div>
-                    {item.description && (
-                      <div className="text-sm text-gray-500">{item.description}</div>
-                    )}
+                    <div className="font-medium">{t(item.key)}</div>
                   </div>
                 </div>
               </button>
             ))}
           </nav>
+
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <LanguageSwitcher />
+          </div>
         </div>
       </aside>
     )
@@ -164,7 +162,7 @@ export function MainNav({ variant = 'header' }: MainNavProps) {
               }`}
             >
               <div className="text-xl mb-1">{item.icon}</div>
-              <div className="text-xs font-medium">{item.label}</div>
+              <div className="text-xs font-medium">{t(item.key)}</div>
             </button>
           ))}
         </div>
@@ -181,7 +179,7 @@ interface BreadcrumbProps {
 }
 
 export function Breadcrumb({ items }: BreadcrumbProps) {
-  const router = useRouter()
+  const { push } = useRouter()
 
   return (
     <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
@@ -190,7 +188,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
           {index > 0 && <span className="mx-2">→</span>}
           {item.href ? (
             <button
-              onClick={() => router.push(item.href!)}
+              onClick={() => push(item.href!)}
               className="hover:text-gray-900 transition-colors"
             >
               {item.label}
