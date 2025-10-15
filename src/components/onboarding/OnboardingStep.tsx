@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import type { OnboardingStep as OnboardingStepType, OnboardingData, AssessmentQuestion } from '@/types/onboarding'
+import { useTranslations } from '@/lib/i18n'
 
 interface OnboardingStepProps {
   step: OnboardingStepType
@@ -28,19 +29,20 @@ export function OnboardingStep({
   canGoBack,
   isLastStep
 }: OnboardingStepProps) {
-  const [currentAnswers, setCurrentAnswers] = useState<Record<string, any>>({})
+  const t = useTranslations('onboardingFlow')
+  const [currentAnswers, setCurrentAnswers] = useState<Record<string, string | number | string[]>>({})
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [isProcessing, setIsProcessing] = useState(false)
 
   // Initialize current answers from form data
   useEffect(() => {
-    const answers: Record<string, any> = {}
+    const answers: Record<string, string | number | string[]> = {}
     step.questions.forEach(question => {
       const value = formData[question.id as keyof OnboardingData]
       if (value !== undefined) {
         answers[question.id] = value
       } else if (question.type === 'multiselect') {
-        // Initialiser les champs multiselect comme tableaux vides
+        // Initialize multiselect fields as empty arrays
         answers[question.id] = []
       }
     })
@@ -48,7 +50,7 @@ export function OnboardingStep({
   }, [step.questions, formData])
 
   // Handle input changes
-  function handleInputChange(questionId: string, value: any) {
+  function handleInputChange(questionId: string, value: string | number | string[]) {
     setCurrentAnswers(prev => ({ ...prev, [questionId]: value }))
     // Clear validation error when user starts typing
     if (validationErrors[questionId]) {
@@ -63,9 +65,10 @@ export function OnboardingStep({
   // Handle multi-select changes
   function handleMultiSelectChange(questionId: string, optionValue: string, checked: boolean) {
     const currentArray = currentAnswers[questionId] || []
+    const arrayValue = Array.isArray(currentArray) ? currentArray : []
     const newArray = checked
-      ? [...currentArray, optionValue]
-      : currentArray.filter((item: string) => item !== optionValue)
+      ? [...arrayValue, optionValue]
+      : arrayValue.filter((item: string) => item !== optionValue)
 
     handleInputChange(questionId, newArray)
   }
@@ -81,18 +84,18 @@ export function OnboardingStep({
 
         if (value === undefined || value === null || value === '' ||
           (Array.isArray(value) && value.length === 0)) {
-          errors[question.id] = 'This field is required'
+          errors[question.id] = t('fieldRequired')
           isValid = false
         } else if (question.type === 'number') {
           const numValue = Number(value)
           if (isNaN(numValue)) {
-            errors[question.id] = 'Please enter a valid number'
+            errors[question.id] = t('enterValidNumber')
             isValid = false
           } else if (question.min !== undefined && numValue < question.min) {
-            errors[question.id] = `Minimum value is ${question.min}`
+            errors[question.id] = `${t('minimumValue')} ${question.min}`
             isValid = false
           } else if (question.max !== undefined && numValue > question.max) {
-            errors[question.id] = `Maximum value is ${question.max}`
+            errors[question.id] = `${t('maximumValue')} ${question.max}`
             isValid = false
           }
         }
@@ -108,15 +111,15 @@ export function OnboardingStep({
     if (validateStep()) {
       onUpdate(currentAnswers)
 
-      // Si c'est la dernière étape, activer le timer et l'état de processing
+      // If last step, enable timer and processing state
       if (isLastStep) {
         setIsProcessing(true)
 
         setTimeout(() => {
           setIsProcessing(false)
-          // Passer les réponses de l'étape au parent pour éviter tout souci de synchro d'état
+          // Pass step answers to parent to avoid any state sync issues
           onNext(currentAnswers)
-        }, 2000) // 2 secondes pour être sûr
+        }, 2000) // 2 seconds to be sure
       } else {
         onNext()
       }
@@ -185,11 +188,11 @@ export function OnboardingStep({
               <p className="text-sm text-gray-600">{question.description}</p>
             )}
             <Select
-              value={value}
+              value={String(value)}
               onValueChange={(newValue) => handleInputChange(question.id, newValue)}
             >
               <SelectTrigger className={error ? 'border-red-500' : ''}>
-                <SelectValue placeholder="Select an option..." />
+                <SelectValue placeholder={t('selectOption')} />
               </SelectTrigger>
               <SelectContent>
                 {question.options?.map(option => (
@@ -205,6 +208,7 @@ export function OnboardingStep({
 
       case 'multiselect':
         const selectedValues = currentAnswers[question.id] || []
+        const selectedArray = Array.isArray(selectedValues) ? selectedValues : []
         return (
           <div key={question.id} className="space-y-2">
             <Label>
@@ -219,7 +223,7 @@ export function OnboardingStep({
                 <label key={option.value} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={selectedValues.includes(option.value)}
+                    checked={selectedArray.includes(option.value)}
                     onChange={(e) => handleMultiSelectChange(question.id, option.value, e.target.checked)}
                     className="rounded border-gray-300"
                   />
@@ -258,7 +262,7 @@ export function OnboardingStep({
             onClick={onPrevious}
             disabled={!canGoBack}
           >
-            Previous
+            {t('previous')}
           </Button>
 
           <Button
@@ -269,10 +273,10 @@ export function OnboardingStep({
             {isProcessing ? (
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>Préparation de votre programme...</span>
+                <span>{t('preparing')}</span>
               </div>
             ) : (
-              isLastStep ? 'Complete Setup' : 'Next'
+              isLastStep ? t('completeSetup') : t('next')
             )}
           </Button>
         </div>

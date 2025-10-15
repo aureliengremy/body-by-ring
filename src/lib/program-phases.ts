@@ -111,9 +111,9 @@ export class PhaseManager {
 
   // Modify base parameters based on phase
   static getPhaseAdjustedParams(
-    baseParams: any,
+    baseParams: typeof LEVEL_PARAMETERS[keyof typeof LEVEL_PARAMETERS],
     phase: ProgramPhase,
-    goalMods: any
+    goalMods: typeof GOAL_MODIFIERS[keyof typeof GOAL_MODIFIERS]
   ) {
     const config = PHASE_CONFIGURATIONS[phase]
     

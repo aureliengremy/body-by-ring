@@ -255,7 +255,7 @@ export class ExportService {
     }
   }
 
-  static async exportToCSV(data: any[], filename: string = 'export.csv'): Promise<void> {
+  static async exportToCSV(data: Record<string, string | number | boolean | null>[], filename: string = 'export.csv'): Promise<void> {
     if (data.length === 0) {
       throw new Error('No data to export')
     }

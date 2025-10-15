@@ -98,7 +98,7 @@ export function ServiceWorkerRegistration({ children }: ServiceWorkerRegistratio
         <div className="fixed top-0 left-0 right-0 bg-orange-500 text-white text-center py-2 text-sm z-50">
           <div className="flex items-center justify-center gap-2">
             <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            You're offline. Changes will sync when connection is restored.
+            You&apos;re offline. Changes will sync when connection is restored.
           </div>
         </div>
       )}

@@ -1,13 +1,42 @@
 import { supabase } from './supabase'
-import type { 
-  ProgramGenerationParams, 
-  WeeklyProgram, 
-  SessionType, 
+import type {
+  ProgramGenerationParams,
+  WeeklyProgram,
+  SessionType,
   ExerciseSelection,
-  ProgramPhase
+  ProgramPhase,
+  Exercise
 } from '@/types/program'
 import { LEVEL_PARAMETERS, GOAL_MODIFIERS } from '@/types/program'
 import { PhaseManager, type PhaseConfig } from './program-phases'
+
+// Type for exercises used during program generation
+interface ExerciseWithPrimary {
+  id: string | null
+  name: string
+  category?: string
+  difficulty_level?: number
+  instructions?: string
+  video_url?: string
+  created_at?: string
+  isPrimary?: boolean
+}
+
+// Type for level parameters
+interface LevelParams {
+  sets_per_exercise: { min: number; max: number }
+  reps_range: { min: number; max: number }
+  rest_seconds: { strength: number; endurance: number }
+  sessions_per_week: { min: number; max: number }
+  exercises_per_session: { min: number; max: number }
+}
+
+// Type for goal modifiers
+interface GoalMods {
+  rep_adjustment: number
+  rest_multiplier: number
+  intensity_focus: string
+}
 
 // Exercise database (we'll expand this based on our SQL data)
 const EXERCISE_LIBRARY: ExerciseSelection = {
@@ -33,17 +62,17 @@ const EXERCISE_LIBRARY: ExerciseSelection = {
 
 export class ProgramGenerator {
   private params: ProgramGenerationParams
-  private exercises: any[] = []
+  private exercises: Exercise[] = []
   private currentPhase: ProgramPhase
   private phaseConfig: PhaseConfig
   private usedExercises: Set<string> = new Set() // Track used exercises to avoid duplicates
 
   // Store selected exercises for consistency across weeks
   private selectedExercises: {
-    push_1: any[]
-    push_2: any[]
-    pull_1: any[]
-    pull_2: any[]
+    push_1: ExerciseWithPrimary[]
+    push_2: ExerciseWithPrimary[]
+    pull_1: ExerciseWithPrimary[]
+    pull_2: ExerciseWithPrimary[]
   } = {
     push_1: [],
     push_2: [],
@@ -99,8 +128,8 @@ export class ProgramGenerator {
   }
 
   // Select exercises for a specific session type
-  private selectExercisesForSession(type: 'push' | 'pull', sessionNumber: 1 | 2): any[] {
-    const exercises: any[] = []
+  private selectExercisesForSession(type: 'push' | 'pull', sessionNumber: 1 | 2): ExerciseWithPrimary[] {
+    const exercises: ExerciseWithPrimary[] = []
 
     if (type === 'push') {
       // Primary push exercise
@@ -249,7 +278,7 @@ export class ProgramGenerator {
   // Generate sessions for a week based on training frequency and progression
   private generateWeeklySessions(weekNumber: number = 1) {
     const frequency = this.params.training_frequency
-    const sessions: { session_type: SessionType; exercises: any[] }[] = []
+    const sessions: { session_type: SessionType; exercises: ExerciseWithPrimary[] }[] = []
 
     // Basic 2-3 day split: Push/Pull alternating
     if (frequency <= 3) {
@@ -280,7 +309,7 @@ export class ProgramGenerator {
   // Generate deload sessions (reduced volume and intensity)
   private generateDeloadSessions() {
     const frequency = this.params.training_frequency
-    const sessions: { session_type: SessionType; exercises: any[] }[] = []
+    const sessions: { session_type: SessionType; exercises: ExerciseWithPrimary[] }[] = []
 
     // Deload sessions are lighter versions with 50% volume
     if (frequency <= 3) {
@@ -352,7 +381,7 @@ export class ProgramGenerator {
   }
 
   // Select appropriate exercise based on user level and available equipment
-  private selectExercise(category: keyof ExerciseSelection, type: 'primary' | 'secondary' | 'skill') {
+  private selectExercise(category: keyof ExerciseSelection, type: 'primary' | 'secondary' | 'skill'): ExerciseWithPrimary | null {
     // Try to find from database first
     const categoryName = category.replace('_exercises', '')
     const dbExercises = this.exercises.filter(ex => ex.category === categoryName)
@@ -397,7 +426,7 @@ export class ProgramGenerator {
   }
 
   // Create exercise set configuration with weekly progression
-  private createExerciseSet(exercise: any, levelParams: any, goalMods: any, isPrimary: boolean, weekNumber: number = 1) {
+  private createExerciseSet(exercise: ExerciseWithPrimary, levelParams: LevelParams, goalMods: GoalMods, isPrimary: boolean, weekNumber: number = 1) {
     const baseReps = levelParams.reps_range
     const adjustedReps = {
       min: Math.max(1, baseReps.min + goalMods.rep_adjustment),
@@ -467,7 +496,7 @@ export class ProgramGenerator {
   }
 
   // Create deload exercise set (50% volume, easier intensities)
-  private createDeloadExerciseSet(exercise: any, levelParams: any, goalMods: any, isPrimary: boolean) {
+  private createDeloadExerciseSet(exercise: ExerciseWithPrimary, levelParams: LevelParams, goalMods: GoalMods, isPrimary: boolean) {
     const baseReps = levelParams.reps_range
     const adjustedReps = {
       min: Math.max(1, Math.floor((baseReps.min + goalMods.rep_adjustment) * 0.6)), // 60% reps
@@ -495,7 +524,7 @@ export class ProgramGenerator {
     programId: string,
     weekNumber: number,
     sessionType: SessionType,
-    exercises: any[],
+    exercises: ExerciseWithPrimary[],
     isDeload: boolean,
     sessionOrder: number
   ) {

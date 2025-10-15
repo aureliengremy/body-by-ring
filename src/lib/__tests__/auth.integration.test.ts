@@ -20,8 +20,8 @@ describe('Authentication Integration', () => {
   beforeEach(() => {
     // Create a test Supabase client
     supabase = createClient(mockSupabaseUrl, mockSupabaseKey)
-    
-    // Mock the auth methods
+
+    // Mock the auth methods with proper typing
     supabase.auth = {
       signUp: jest.fn(),
       signInWithPassword: jest.fn(),
@@ -29,7 +29,7 @@ describe('Authentication Integration', () => {
       getSession: jest.fn(),
       onAuthStateChange: jest.fn(),
       getUser: jest.fn(),
-    } as any
+    } as unknown as typeof supabase.auth
   })
 
   describe('User Registration', () => {

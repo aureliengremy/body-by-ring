@@ -2,12 +2,13 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { auth, type AuthUser } from '@/lib/auth'
+import type { AuthResponse } from '@supabase/supabase-js'
 
 interface AuthContextType {
   user: AuthUser
   loading: boolean
-  signIn: (email: string, password: string) => Promise<any>
-  signUp: (email: string, password: string) => Promise<any>
+  signIn: (email: string, password: string) => Promise<AuthResponse>
+  signUp: (email: string, password: string) => Promise<{ data: AuthResponse['data'], error: AuthResponse['error'] }>
   signOut: () => Promise<void>
 }
 

@@ -117,7 +117,7 @@ export function ExerciseFilters({
           <div className="flex gap-2">
             <Select
               value={sort.field}
-              onValueChange={(field: any) => onSortChange({ ...sort, field })}
+              onValueChange={(field) => onSortChange({ ...sort, field: field as ExerciseSortOption['field'] })}
             >
               <SelectTrigger className="flex-1">
                 <SelectValue />
@@ -131,7 +131,7 @@ export function ExerciseFilters({
             
             <Select
               value={sort.direction}
-              onValueChange={(direction: any) => onSortChange({ ...sort, direction })}
+              onValueChange={(direction) => onSortChange({ ...sort, direction: direction as ExerciseSortOption['direction'] })}
             >
               <SelectTrigger className="flex-1">
                 <SelectValue />

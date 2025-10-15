@@ -301,7 +301,19 @@ export class AchievementSystem {
 
   private static isAchievementUnlocked(
     achievement: Achievement,
-    userStats: any
+    userStats: {
+      totalWorkouts: number
+      currentStreak: number
+      weeklyWorkouts: number
+      monthlyWorkouts: number
+      totalVolume: number
+      weeklyVolume: number
+      monthlyVolume: number
+      averageRpe: number
+      weeklyAverageRpe: number
+      exerciseMaxes: Record<string, number>
+      completedGoals: number
+    }
   ): boolean {
     return achievement.requirements.every(req => {
       let currentValue = 0

@@ -148,11 +148,11 @@ export function sortExercises(
   sort: ExerciseSortOption
 ): Exercise[] {
   return [...exercises].sort((a, b) => {
-    let aValue: any = a[sort.field]
-    let bValue: any = b[sort.field]
+    let aValue: string | number = a[sort.field]
+    let bValue: string | number = b[sort.field]
 
     // Handle string comparison
-    if (typeof aValue === 'string') {
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
       aValue = aValue.toLowerCase()
       bValue = bValue.toLowerCase()
     }

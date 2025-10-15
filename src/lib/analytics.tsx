@@ -41,7 +41,7 @@ export interface AnalyticsEvent {
   category: string
   label?: string
   value?: number
-  properties?: Record<string, any>
+  properties?: Record<string, string | number | boolean>
 }
 
 // Workout-specific events
@@ -58,7 +58,7 @@ export interface WorkoutEvent {
 export interface UserEvent {
   userId: string
   action: 'signup' | 'login' | 'logout' | 'profile_update'
-  properties?: Record<string, any>
+  properties?: Record<string, string | number | boolean>
 }
 
 // Analytics service
@@ -70,7 +70,7 @@ export class AnalyticsService {
   }
 
   // Track page views
-  trackPageView(page: string, properties?: Record<string, any>) {
+  trackPageView(page: string, properties?: Record<string, string | number | boolean>) {
     if (!this.isEnabled) return
 
     plausible.trackPageview({
@@ -131,7 +131,7 @@ export class AnalyticsService {
   }
 
   // Track errors
-  trackError(error: Error, context?: Record<string, any>) {
+  trackError(error: Error, context?: Record<string, string | number | boolean | undefined>) {
     if (!this.isEnabled) return
 
     console.error('Analytics Error:', error)
@@ -160,7 +160,7 @@ export class AnalyticsService {
   }
 
   // Track feature usage
-  trackFeature(feature: string, properties?: Record<string, any>) {
+  trackFeature(feature: string, properties?: Record<string, string | number | boolean>) {
     if (!this.isEnabled) return
 
     this.trackEvent({
