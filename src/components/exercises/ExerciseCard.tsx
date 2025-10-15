@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useTranslations } from '@/lib/i18n'
 import type { Exercise } from '@/types/exercise'
 import { DIFFICULTY_LABELS, CATEGORY_INFO, getDifficultyColorClass, getCategoryColorClass } from '@/types/exercise'
 import { useRouter } from 'next/navigation'
@@ -14,9 +15,10 @@ interface ExerciseCardProps {
 }
 
 export function ExerciseCard({ exercise, showCategory = true, compact = false }: ExerciseCardProps) {
+  const t = useTranslations('exerciseCard')
   const router = useRouter()
   const { success, warning } = useToastActions()
-  
+
   const difficultyInfo = DIFFICULTY_LABELS[exercise.difficulty_level as keyof typeof DIFFICULTY_LABELS]
   const categoryInfo = CATEGORY_INFO[exercise.category]
 
@@ -105,13 +107,13 @@ export function ExerciseCard({ exercise, showCategory = true, compact = false }:
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
-            <Button 
+            <Button
               onClick={handleViewDetails}
               className="flex-1 interactive-button"
             >
-              View Details
+              {t('viewDetails')}
             </Button>
-            <Button 
+            <Button
               variant="outline"
               className="interactive-button"
               onClick={(e) => {
@@ -119,7 +121,7 @@ export function ExerciseCard({ exercise, showCategory = true, compact = false }:
                 // Add to workout functionality with feedback
                 const handleAddToWorkout = () => {
                   // Store in localStorage for now (will be enhanced later with proper state management)
-                  const savedExercises = JSON.parse(localStorage.getItem('quickWorkout') || '[]')
+                  const savedExercises: Array<{id: string; name: string; category: string; difficulty: number; addedAt: string}> = JSON.parse(localStorage.getItem('quickWorkout') || '[]')
                   const exerciseToAdd = {
                     id: exercise.id,
                     name: exercise.name,
@@ -127,23 +129,23 @@ export function ExerciseCard({ exercise, showCategory = true, compact = false }:
                     difficulty: exercise.difficulty,
                     addedAt: new Date().toISOString()
                   }
-                  
+
                   // Check if already added
-                  const alreadyAdded = savedExercises.find((ex: any) => ex.id === exercise.id)
+                  const alreadyAdded = savedExercises.find((ex) => ex.id === exercise.id)
                   if (alreadyAdded) {
-                    warning('Already Added', `${exercise.name} is already in your quick workout!`)
+                    warning(t('alreadyAdded'), `${exercise.name} ${t('alreadyInWorkout')}`)
                     return
                   }
-                  
+
                   savedExercises.push(exerciseToAdd)
                   localStorage.setItem('quickWorkout', JSON.stringify(savedExercises))
-                  success('Exercise Added!', `${exercise.name} added to your quick workout! (${savedExercises.length} exercises total)`)
+                  success(t('exerciseAdded'), `${exercise.name} ${t('addedToQuickWorkout', { count: savedExercises.length })}`)
                 }
-                
+
                 handleAddToWorkout()
               }}
             >
-              Add to Workout
+              {t('addToWorkout')}
             </Button>
           </div>
         </div>

@@ -3,11 +3,12 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { 
-  Dumbbell, 
-  BarChart3, 
-  Users, 
-  Search, 
+import { useTranslations } from '@/lib/i18n'
+import {
+  Dumbbell,
+  BarChart3,
+  Users,
+  Search,
   AlertCircle,
   Plus,
   Play,
@@ -26,51 +27,6 @@ interface EmptyStateProps {
   icon?: React.ReactNode
 }
 
-const variantConfig = {
-  default: {
-    icon: AlertCircle,
-    title: 'No Data Available',
-    description: 'There\'s nothing to show here yet.',
-    actionLabel: 'Get Started'
-  },
-  workouts: {
-    icon: Dumbbell,
-    title: 'No Workouts Yet',
-    description: 'Start your fitness journey by creating your first workout session.',
-    actionLabel: 'Start First Workout'
-  },
-  analytics: {
-    icon: BarChart3,
-    title: 'No Progress Data',
-    description: 'Complete some workouts to see your progress analytics and trends.',
-    actionLabel: 'View Workouts'
-  },
-  exercises: {
-    icon: BookOpen,
-    title: 'No Exercises Found',
-    description: 'Try adjusting your filters or browse the complete exercise library.',
-    actionLabel: 'Clear Filters'
-  },
-  search: {
-    icon: Search,
-    title: 'No Results Found',
-    description: 'We couldn\'t find anything matching your search. Try different keywords.',
-    actionLabel: 'Clear Search'
-  },
-  error: {
-    icon: AlertCircle,
-    title: 'Something Went Wrong',
-    description: 'We encountered an error loading this content. Please try again.',
-    actionLabel: 'Retry'
-  },
-  programs: {
-    icon: Target,
-    title: 'No Programs Available', 
-    description: 'Create or generate a training program to get started with your fitness journey.',
-    actionLabel: 'Generate Program'
-  }
-}
-
 export function EmptyState({
   variant = 'default',
   title,
@@ -80,6 +36,53 @@ export function EmptyState({
   className,
   icon
 }: EmptyStateProps) {
+  const t = useTranslations('emptyState')
+
+  const variantConfig = {
+    default: {
+      icon: AlertCircle,
+      title: t('noDataAvailable'),
+      description: t('nothingToShow'),
+      actionLabel: t('getStarted')
+    },
+    workouts: {
+      icon: Dumbbell,
+      title: t('noWorkoutsYet'),
+      description: t('startFitnessJourney'),
+      actionLabel: t('startFirstWorkout')
+    },
+    analytics: {
+      icon: BarChart3,
+      title: t('noProgressData'),
+      description: t('completeWorkoutsToSeeProgress'),
+      actionLabel: t('viewWorkouts')
+    },
+    exercises: {
+      icon: BookOpen,
+      title: t('noExercisesFound'),
+      description: t('adjustFilters'),
+      actionLabel: t('clearFilters')
+    },
+    search: {
+      icon: Search,
+      title: t('noResultsFound'),
+      description: t('tryDifferentKeywords'),
+      actionLabel: t('clearSearch')
+    },
+    error: {
+      icon: AlertCircle,
+      title: t('somethingWentWrong'),
+      description: t('errorLoadingContent'),
+      actionLabel: t('retry')
+    },
+    programs: {
+      icon: Target,
+      title: t('noProgramsAvailable'),
+      description: t('createTrainingProgram'),
+      actionLabel: t('generateProgram')
+    }
+  }
+
   const config = variantConfig[variant]
   const IconComponent = icon ? () => icon : config.icon
 
@@ -126,12 +129,13 @@ export function EmptyState({
 
 // Specialized empty states for common scenarios
 export function NoWorkoutsEmpty({ onStartWorkout }: { onStartWorkout?: () => void }) {
+  const t = useTranslations('emptyState')
   return (
     <EmptyState
       variant="workouts"
-      title="Ready to Start Training?"
-      description="Begin your calisthenics journey with professionally designed workout programs."
-      actionLabel="Start Your First Workout"
+      title={t('readyToStartTraining')}
+      description={t('beginJourney')}
+      actionLabel={t('startYourFirstWorkout')}
       onAction={onStartWorkout}
       icon={<Play className="w-8 h-8" />}
     />
@@ -139,12 +143,13 @@ export function NoWorkoutsEmpty({ onStartWorkout }: { onStartWorkout?: () => voi
 }
 
 export function NoAnalyticsEmpty({ onViewWorkouts }: { onViewWorkouts?: () => void }) {
+  const t = useTranslations('emptyState')
   return (
     <EmptyState
       variant="analytics"
-      title="Track Your Progress"
-      description="Complete a few workouts to unlock detailed analytics and see your fitness journey unfold."
-      actionLabel="Browse Workouts"
+      title={t('trackYourProgress')}
+      description={t('completeWorkoutsForAnalytics')}
+      actionLabel={t('browseWorkouts')}
       onAction={onViewWorkouts}
       icon={<TrendingUp className="w-8 h-8" />}
     />
@@ -152,12 +157,13 @@ export function NoAnalyticsEmpty({ onViewWorkouts }: { onViewWorkouts?: () => vo
 }
 
 export function NoExercisesEmpty({ onBrowseAll }: { onBrowseAll?: () => void }) {
+  const t = useTranslations('emptyState')
   return (
     <EmptyState
       variant="exercises"
-      title="Explore Exercise Library"
-      description="Discover hundreds of calisthenics exercises with detailed instructions and progressions."
-      actionLabel="Browse All Exercises"
+      title={t('exploreExerciseLibrary')}
+      description={t('discoverExercises')}
+      actionLabel={t('browseAllExercises')}
       onAction={onBrowseAll}
       icon={<BookOpen className="w-8 h-8" />}
     />
@@ -165,12 +171,13 @@ export function NoExercisesEmpty({ onBrowseAll }: { onBrowseAll?: () => void }) 
 }
 
 export function NoProgramsEmpty({ onGenerateProgram }: { onGenerateProgram?: () => void }) {
+  const t = useTranslations('emptyState')
   return (
     <EmptyState
       variant="programs"
-      title="Create Your Program"
-      description="Generate a personalized training program based on your experience level and goals."
-      actionLabel="Generate Program"
+      title={t('createYourProgram')}
+      description={t('generatePersonalizedProgram')}
+      actionLabel={t('generateProgram')}
       onAction={onGenerateProgram}
       icon={<Plus className="w-8 h-8" />}
     />
@@ -178,24 +185,26 @@ export function NoProgramsEmpty({ onGenerateProgram }: { onGenerateProgram?: () 
 }
 
 export function SearchEmpty({ onClearSearch }: { onClearSearch?: () => void }) {
+  const t = useTranslations('emptyState')
   return (
     <EmptyState
       variant="search"
-      title="No Results Found"
-      description="Try using different keywords or check your spelling."
-      actionLabel="Clear Search"
+      title={t('noResultsFound')}
+      description={t('checkSpelling')}
+      actionLabel={t('clearSearch')}
       onAction={onClearSearch}
     />
   )
 }
 
 export function ErrorEmpty({ onRetry }: { onRetry?: () => void }) {
+  const t = useTranslations('emptyState')
   return (
     <EmptyState
       variant="error"
-      title="Oops! Something Went Wrong"
-      description="We're having trouble loading this content. Please check your connection and try again."
-      actionLabel="Try Again"
+      title={t('oopsSomethingWentWrong')}
+      description={t('troubleLoading')}
+      actionLabel={t('tryAgain')}
       onAction={onRetry}
     />
   )
