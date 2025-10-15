@@ -5,10 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { 
-  Trophy, 
-  Star, 
-  Target, 
+import {
+  Trophy,
+  Star,
+  Target,
   Zap,
   Gift,
   TrendingUp,
@@ -17,6 +17,7 @@ import {
   Crown
 } from 'lucide-react'
 import { LEVEL_DEFINITIONS } from '@/lib/gamification'
+import { useTranslations } from '@/lib/i18n'
 
 interface OnboardingStep {
   id: string
@@ -34,19 +35,20 @@ interface GamifiedOnboardingProps {
   onComplete?: () => void
 }
 
-export function GamifiedOnboarding({ 
-  currentStep = 0, 
+export function GamifiedOnboarding({
+  currentStep = 0,
   onStepComplete,
-  onComplete 
+  onComplete
 }: GamifiedOnboardingProps) {
+  const t = useTranslations('gamification')
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
   const [totalXp, setTotalXp] = useState(0)
 
   const onboardingSteps: OnboardingStep[] = [
     {
       id: 'profile',
-      title: 'Créer votre profil',
-      description: 'Renseignez vos informations de base pour personnaliser votre expérience',
+      title: t('createProfile'),
+      description: t('provideBasicInfo'),
       xpReward: 50,
       completed: false,
       required: true,
@@ -54,8 +56,8 @@ export function GamifiedOnboarding({
     },
     {
       id: 'goals',
-      title: 'Définir vos objectifs',
-      description: 'Choisissez vos objectifs fitness pour un programme adapté',
+      title: t('defineGoals'),
+      description: t('chooseGoalsForProgram'),
       xpReward: 75,
       completed: false,
       required: true,
@@ -63,8 +65,8 @@ export function GamifiedOnboarding({
     },
     {
       id: 'program',
-      title: 'Générer votre programme',
-      description: 'Votre programme personnalisé basé sur vos objectifs',
+      title: t('generateProgram'),
+      description: t('personalizedProgram'),
       xpReward: 100,
       completed: false,
       required: true,
@@ -72,8 +74,8 @@ export function GamifiedOnboarding({
     },
     {
       id: 'first_achievement',
-      title: 'Premier succès !',
-      description: 'Débloquez votre premier achievement',
+      title: t('firstAchievement'),
+      description: t('unlockFirstAchievement'),
       xpReward: 25,
       completed: false,
       required: false,
@@ -81,8 +83,8 @@ export function GamifiedOnboarding({
     },
     {
       id: 'level_unlock',
-      title: 'Niveau 2 débloqué !',
-      description: 'Accédez aux fonctionnalités du niveau Apprenti',
+      title: t('levelUnlocked'),
+      description: t('accessApprenticeFeatures'),
       xpReward: 0,
       completed: false,
       required: false,
@@ -136,10 +138,10 @@ export function GamifiedOnboarding({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl">
             <Crown className="h-8 w-8 text-purple-600" />
-            Bienvenue dans Body by Rings !
+            {t('welcome')}
           </CardTitle>
           <CardDescription className="text-lg">
-            Configurons votre espace d&apos;entraînement et débloquez vos premiers rewards
+            {t('setupYourSpace')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -147,20 +149,20 @@ export function GamifiedOnboarding({
             <div className="flex items-center gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">{totalXp}</div>
-                <div className="text-sm text-gray-600">XP total</div>
+                <div className="text-sm text-gray-600">{t('totalXp')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl">{currentLevel.icon}</div>
                 <div className="text-sm font-medium">{currentLevel.title}</div>
               </div>
               <Badge className={currentLevel.color}>
-                Niveau {currentLevel.level}
+                {t('streak.level')} {currentLevel.level}
               </Badge>
             </div>
 
             <div className="text-right">
               <div className="text-sm font-medium mb-1">
-                Progression: {Math.round(progressPercentage)}%
+                {t('progression')}: {Math.round(progressPercentage)}%
               </div>
               <Progress value={progressPercentage} className="w-32 h-2" />
             </div>
@@ -212,7 +214,7 @@ export function GamifiedOnboarding({
                       <h3 className="text-lg font-semibold">{step.title}</h3>
                       {step.required && (
                         <Badge variant="outline" className="text-xs">
-                          Requis
+                          {t('required')}
                         </Badge>
                       )}
                       {step.xpReward > 0 && (
@@ -227,19 +229,19 @@ export function GamifiedOnboarding({
                     {isCompleted ? (
                       <div className="flex items-center gap-2 text-green-600 font-medium">
                         <CheckCircle className="h-4 w-4" />
-                        Complété ! {step.xpReward > 0 && `+${step.xpReward} XP gagné`}
+                        {t('completed')} {step.xpReward > 0 && `+${step.xpReward} ${t('xpGained')}`}
                       </div>
                     ) : isActive ? (
                       <Button
                         onClick={() => completeStep(step.id)}
                         className="flex items-center gap-2"
                       >
-                        Compléter cette étape
+                        {t('completeThisStep')}
                         <ArrowRight className="h-4 w-4" />
                       </Button>
                     ) : (
                       <div className="text-gray-500 text-sm">
-                        Complétez l&apos;étape précédente pour débloquer
+                        {t('completePreviousStep')}
                       </div>
                     )}
                   </div>
@@ -255,27 +257,27 @@ export function GamifiedOnboarding({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Gift className="h-5 w-5 text-purple-600" />
-            Récompenses à débloquer
+            {t('rewardsToUnlock')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="text-center p-4 border rounded-lg">
               <Trophy className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-              <h4 className="font-medium mb-1">Premier succès</h4>
-              <p className="text-sm text-gray-600">Complétez votre profil</p>
+              <h4 className="font-medium mb-1">{t('firstSuccess')}</h4>
+              <p className="text-sm text-gray-600">{t('completeYourProfile')}</p>
             </div>
 
             <div className="text-center p-4 border rounded-lg">
               <TrendingUp className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <h4 className="font-medium mb-1">Niveau Apprenti</h4>
-              <p className="text-sm text-gray-600">Atteignez 100 XP</p>
+              <h4 className="font-medium mb-1">{t('apprenticeLevel')}</h4>
+              <p className="text-sm text-gray-600">{t('reach100Xp')}</p>
             </div>
 
             <div className="text-center p-4 border rounded-lg">
               <Zap className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-              <h4 className="font-medium mb-1">Première série</h4>
-              <p className="text-sm text-gray-600">Commencez votre première séance</p>
+              <h4 className="font-medium mb-1">{t('firstSeries')}</h4>
+              <p className="text-sm text-gray-600">{t('startFirstSession')}</p>
             </div>
           </div>
         </CardContent>
@@ -286,7 +288,7 @@ export function GamifiedOnboarding({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">Progression vers Niveau 2</span>
+              <span className="font-medium">{t('progressionToLevel')} 2</span>
               <span className="text-sm text-gray-600">
                 {totalXp} / {LEVEL_DEFINITIONS[1].minXp} XP
               </span>
@@ -296,7 +298,7 @@ export function GamifiedOnboarding({
               className="h-3"
             />
             <p className="text-xs text-gray-600 mt-2">
-              Plus que {LEVEL_DEFINITIONS[1].minXp - totalXp} XP pour débloquer de nouvelles fonctionnalités !
+              {t('moreXpToUnlock', { xp: LEVEL_DEFINITIONS[1].minXp - totalXp })}
             </p>
           </CardContent>
         </Card>

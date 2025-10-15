@@ -4,15 +4,16 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Heart, 
-  Bell, 
-  Trophy, 
-  Zap, 
-  Clock, 
-  Lightbulb, 
-  X, 
-  Gift 
+import { useTranslations } from '@/lib/i18n'
+import {
+  Heart,
+  Bell,
+  Trophy,
+  Zap,
+  Clock,
+  Lightbulb,
+  X,
+  Gift
 } from 'lucide-react'
 
 interface MotivationMessage {
@@ -33,6 +34,7 @@ interface MotivationCenterProps {
 }
 
 export function MotivationCenter({ userId }: MotivationCenterProps) {
+  const t = useTranslations('motivation')
   const [messages, setMessages] = useState<MotivationMessage[]>([])
   const [showNotifications, setShowNotifications] = useState(false)
 
@@ -42,35 +44,35 @@ export function MotivationCenter({ userId }: MotivationCenterProps) {
       {
         id: '1',
         type: 'streak',
-        title: 'Série en cours ! 🔥',
+        title: t('seriesInProgress'),
         message: 'Tu es sur une série de 3 jours ! Continue comme ça pour atteindre ton record.',
         timestamp: new Date().toISOString(),
         read: false,
         actionButton: {
-          text: 'Voir mes stats',
+          text: t('viewStats'),
           action: () => console.log('Redirection vers statistiques')
         }
       },
       {
         id: '2',
         type: 'motivation',
-        title: 'Tu progresses !',
-        message: 'Tes performances s\'améliorent régulièrement. Garde cette motivation !',
+        title: t('youAreProgressing'),
+        message: t('performanceImproving'),
         timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
         read: true
       },
       {
         id: '3',
         type: 'tip',
-        title: 'Conseil du coach',
-        message: 'N\'oublie pas de bien t\'échauffer avant chaque séance pour éviter les blessures.',
+        title: t('coachTip'),
+        message: t('warmupReminder'),
         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
         read: false
       }
     ]
-    
+
     setMessages(mockMessages)
-  }, [userId])
+  }, [userId, t])
 
   const getMessageIcon = (type: MotivationMessage['type']) => {
     switch (type) {
@@ -125,20 +127,20 @@ export function MotivationCenter({ userId }: MotivationCenterProps) {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Heart className="h-6 w-6 text-red-500" />
-            Centre de motivation
+            {t('center')}
           </h2>
           <p className="text-gray-600">
-            Messages personnalisés pour t'aider à rester motivé
+            {t('personalizedMessages')}
           </p>
         </div>
-        
-        <Button 
-          variant="outline" 
+
+        <Button
+          variant="outline"
           onClick={() => setShowNotifications(!showNotifications)}
           className="relative"
         >
           <Bell className="h-4 w-4 mr-2" />
-          Notifications
+          {t('notifications')}
           {unreadCount > 0 && (
             <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-red-500">
               {unreadCount}
@@ -154,10 +156,10 @@ export function MotivationCenter({ userId }: MotivationCenterProps) {
             <CardContent className="p-6 text-center">
               <Heart className="h-12 w-12 text-gray-400 mx-auto mb-3" />
               <p className="text-gray-600">
-                Pas de nouveaux messages pour le moment.
+                {t('noNewMessages')}
               </p>
               <p className="text-sm text-gray-500 mt-1">
-                Continue tes entraînements pour débloquer de nouveaux messages !
+                {t('keepTraining')}
               </p>
             </CardContent>
           </Card>
@@ -225,7 +227,7 @@ export function MotivationCenter({ userId }: MotivationCenterProps) {
                             onClick={() => markAsRead(message.id)}
                             className="text-xs"
                           >
-                            Marquer comme lu
+                            {t('markAsRead')}
                           </Button>
                         )}
                       </div>
@@ -243,17 +245,16 @@ export function MotivationCenter({ userId }: MotivationCenterProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Gift className="h-5 w-5 text-purple-600" />
-            Conseil du jour
+            {t('dailyTip')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
             <p className="text-sm text-purple-900 font-medium mb-1">
-              Astuce d'entraînement
+              {t('trainingTip')}
             </p>
             <p className="text-sm text-purple-700">
-              Concentre-toi sur la qualité plutôt que la quantité. Un mouvement bien exécuté 
-              vaut mieux que plusieurs répétitions approximatives.
+              {t('focusOnQuality')}
             </p>
           </div>
         </CardContent>

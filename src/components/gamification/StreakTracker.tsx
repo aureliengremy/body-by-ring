@@ -4,23 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { 
-  Flame, 
-  Star, 
-  Trophy, 
-  Zap, 
-  Target, 
-  Gift 
+import {
+  Flame,
+  Star,
+  Trophy,
+  Zap,
+  Target,
+  Gift
 } from 'lucide-react'
 import { GamificationSystem, UserGameData } from '@/lib/gamification'
+import { useTranslations } from '@/lib/i18n'
 
 interface StreakTrackerProps {
   gameData: UserGameData
 }
 
 export function StreakTracker({ gameData }: StreakTrackerProps) {
+  const t = useTranslations('streak')
   const levelProgress = GamificationSystem.getProgressToNextLevel(gameData.xp)
-  
+
   const getStreakColor = (streak: number) => {
     if (streak >= 30) return 'text-purple-500'
     if (streak >= 14) return 'text-orange-500'
@@ -30,11 +32,11 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
   }
 
   const getStreakBadge = (streak: number) => {
-    if (streak >= 30) return { text: 'Légendaire !', color: 'bg-purple-100 text-purple-800' }
-    if (streak >= 14) return { text: 'Incroyable !', color: 'bg-orange-100 text-orange-800' }
-    if (streak >= 7) return { text: 'Excellent !', color: 'bg-yellow-100 text-yellow-800' }
-    if (streak >= 3) return { text: 'Bon rythme !', color: 'bg-green-100 text-green-800' }
-    return { text: 'Début prometteur', color: 'bg-gray-100 text-gray-800' }
+    if (streak >= 30) return { text: t('legendary'), color: 'bg-purple-100 text-purple-800' }
+    if (streak >= 14) return { text: t('incredible'), color: 'bg-orange-100 text-orange-800' }
+    if (streak >= 7) return { text: t('excellent'), color: 'bg-yellow-100 text-yellow-800' }
+    if (streak >= 3) return { text: t('goodPace'), color: 'bg-green-100 text-green-800' }
+    return { text: t('promisingStart'), color: 'bg-gray-100 text-gray-800' }
   }
 
   const streakBadge = getStreakBadge(gameData.streak.current)
@@ -46,17 +48,17 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <span className="text-2xl">{levelProgress.currentLevel.icon}</span>
-            Niveau {levelProgress.currentLevel.level} - {levelProgress.currentLevel.title}
+            {t('level')} {levelProgress.currentLevel.level} - {levelProgress.currentLevel.title}
           </CardTitle>
           <CardDescription>
-            {gameData.xp} XP total • {levelProgress.xpToNext} XP pour le niveau suivant
+            {gameData.xp} {t('totalXp')} • {levelProgress.xpToNext} {t('xpForNextLevel')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Barre de progression XP */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Progression vers niveau {levelProgress.nextLevel?.level || 'MAX'}</span>
+              <span className="text-sm font-medium">{t('progressionToLevel')} {levelProgress.nextLevel?.level || 'MAX'}</span>
               <span className="text-sm text-gray-600">{levelProgress.progress}%</span>
             </div>
             <Progress value={levelProgress.progress} className="h-3" />
@@ -64,7 +66,7 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
 
           {/* Avantages du niveau */}
           <div>
-            <h4 className="text-sm font-medium mb-2">Avantages débloqués :</h4>
+            <h4 className="text-sm font-medium mb-2">{t('unlockedBenefits')}</h4>
             <div className="flex flex-wrap gap-1">
               {levelProgress.currentLevel.benefits.map((benefit, index) => (
                 <Badge key={index} variant="outline" className="text-xs">
@@ -81,19 +83,19 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Flame className={`h-6 w-6 ${getStreakColor(gameData.streak.current)}`} />
-            Série de {gameData.streak.current} jour{gameData.streak.current > 1 ? 's' : ''}
+            {t('series')} {gameData.streak.current} {gameData.streak.current > 1 ? t('days') : t('day')}
             <Badge className={streakBadge.color}>
               {streakBadge.text}
             </Badge>
           </CardTitle>
           <CardDescription>
-            Record personnel : {gameData.streak.longest} jours
+            {t('personalRecord')} {gameData.streak.longest} {t('days')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Visualisation des 7 derniers jours */}
           <div>
-            <h4 className="text-sm font-medium mb-3">7 derniers jours</h4>
+            <h4 className="text-sm font-medium mb-3">{t('last7Days')}</h4>
             <div className="flex gap-2">
               {Array.from({ length: 7 }, (_, i) => {
                 const dayIndex = 6 - i
@@ -102,8 +104,8 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
                   <div
                     key={i}
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                      isActive 
-                        ? 'bg-orange-500 text-white' 
+                      isActive
+                        ? 'bg-orange-500 text-white'
                         : 'bg-gray-200 text-gray-500'
                     }`}
                   >
@@ -121,14 +123,14 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
                 <Zap className="h-5 w-5 text-orange-600 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-orange-900">
-                    {gameData.streak.current >= 7 
-                      ? 'Incroyable régularité !' 
-                      : 'Continue sur cette lancée !'}
+                    {gameData.streak.current >= 7
+                      ? t('incredibleConsistency')
+                      : t('keepGoing')}
                   </p>
                   <p className="text-xs text-orange-700">
-                    {gameData.streak.current === 1 
-                      ? 'Bon début ! Reviens demain pour continuer ta série.' 
-                      : `Tu as maintenu ta série ${gameData.streak.current} jours. Tu es sur la bonne voie !`}
+                    {gameData.streak.current === 1
+                      ? t('goodStart')
+                      : t('maintainedSeries', { days: gameData.streak.current })}
                   </p>
                 </div>
               </div>
@@ -140,15 +142,15 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-blue-600" />
               <div>
-                <p className="text-sm font-medium text-blue-900">Protection de série</p>
+                <p className="text-sm font-medium text-blue-900">{t('streakProtection')}</p>
                 <p className="text-xs text-blue-700">
-                  {gameData.streak.maxFreezes - gameData.streak.freezesUsed} gel{gameData.streak.maxFreezes - gameData.streak.freezesUsed > 1 ? 's' : ''} restant{gameData.streak.maxFreezes - gameData.streak.freezesUsed > 1 ? 's' : ''}
+                  {gameData.streak.maxFreezes - gameData.streak.freezesUsed} {gameData.streak.maxFreezes - gameData.streak.freezesUsed > 1 ? t('freezesRemaining') : t('freezeRemaining')}
                 </p>
               </div>
             </div>
             <Button variant="outline" size="sm" disabled={gameData.streak.freezesUsed >= gameData.streak.maxFreezes}>
               <Gift className="h-4 w-4 mr-1" />
-              Utiliser
+              {t('use')}
             </Button>
           </div>
         </CardContent>
@@ -160,7 +162,7 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <span className="text-2xl">{gameData.weeklyChallenge.icon}</span>
-              Défi de la semaine
+              {t('weeklyChallenge')}
             </CardTitle>
             <CardDescription>
               {gameData.weeklyChallenge.title}
@@ -170,17 +172,17 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
             <p className="text-sm text-gray-700">
               {gameData.weeklyChallenge.description}
             </p>
-            
+
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Progression</span>
+                <span className="text-sm font-medium">{t('progression')}</span>
                 <span className="text-sm text-gray-600">
                   {gameData.weeklyChallenge.current} / {gameData.weeklyChallenge.target}
                 </span>
               </div>
-              <Progress 
-                value={(gameData.weeklyChallenge.current / gameData.weeklyChallenge.target) * 100} 
-                className="h-3" 
+              <Progress
+                value={(gameData.weeklyChallenge.current / gameData.weeklyChallenge.target) * 100}
+                className="h-3"
               />
             </div>
 
@@ -188,13 +190,13 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-yellow-600" />
                 <span className="text-sm font-medium">
-                  Récompense : {gameData.weeklyChallenge.xpReward} XP
+                  {t('reward')} : {gameData.weeklyChallenge.xpReward} XP
                 </span>
               </div>
               {gameData.weeklyChallenge.completed && (
                 <Badge className="bg-green-100 text-green-800">
                   <Trophy className="h-3 w-3 mr-1" />
-                  Complété
+                  {t('gamification.completed')}
                 </Badge>
               )}
             </div>
@@ -210,18 +212,18 @@ export function StreakTracker({ gameData }: StreakTrackerProps) {
               {gameData.totalWorkouts}
             </div>
             <div className="text-sm text-gray-600">
-              Séances totales
+              {t('totalWorkouts')}
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600">
               {gameData.totalXpEarned}
             </div>
             <div className="text-sm text-gray-600">
-              XP total gagné
+              {t('totalXpEarned')}
             </div>
           </CardContent>
         </Card>
