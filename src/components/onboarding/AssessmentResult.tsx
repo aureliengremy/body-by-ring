@@ -2,13 +2,14 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { 
-  assessExperienceLevel, 
-  getAssessmentExplanation, 
+import {
+  assessExperienceLevel,
+  getAssessmentExplanation,
   getPersonalizedRecommendations,
   type AssessmentData,
-  type ExperienceLevel 
+  type ExperienceLevel
 } from '@/lib/experience-assessment'
+import { useTranslations } from '@/lib/i18n'
 
 interface AssessmentResultProps {
   assessmentData: AssessmentData
@@ -16,11 +17,12 @@ interface AssessmentResultProps {
   onRetake: () => void
 }
 
-export default function AssessmentResult({ 
-  assessmentData, 
-  onContinue, 
-  onRetake 
+export default function AssessmentResult({
+  assessmentData,
+  onContinue,
+  onRetake
 }: AssessmentResultProps) {
+  const t = useTranslations('assessment')
   const experienceLevel = assessExperienceLevel(assessmentData)
   const explanation = getAssessmentExplanation(experienceLevel, assessmentData)
   const recommendations = getPersonalizedRecommendations(experienceLevel, assessmentData)
@@ -57,17 +59,17 @@ export default function AssessmentResult({
             {style.emoji}
           </div>
           <CardTitle className="text-2xl capitalize">
-            {experienceLevel} Level
+            {experienceLevel} {t('level')}
           </CardTitle>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           <div className="prose prose-sm max-w-none">
             {explanation.split('\n').map((paragraph, index) => (
               paragraph.trim() && (
                 <p key={index} className="mb-3">
-                  {paragraph.includes('**') 
-                    ? paragraph.split('**').map((part, i) => 
+                  {paragraph.includes('**')
+                    ? paragraph.split('**').map((part, i) =>
                         i % 2 === 1 ? <strong key={i}>{part}</strong> : part
                       )
                     : paragraph
@@ -83,7 +85,7 @@ export default function AssessmentResult({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            🏋️ Your Starting Exercises
+            🏋️ {t('yourStartingExercises')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -104,7 +106,7 @@ export default function AssessmentResult({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            📅 Recommended Schedule
+            📅 {t('recommendedSchedule')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -118,7 +120,7 @@ export default function AssessmentResult({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            🎯 Your Focus Areas
+            🎯 {t('yourFocusAreas')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -137,7 +139,7 @@ export default function AssessmentResult({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            ⚠️ Important Safety Guidelines
+            ⚠️ {t('importantSafetyGuidelines')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -155,20 +157,20 @@ export default function AssessmentResult({
       {/* Assessment Summary */}
       <Card className="bg-gray-50">
         <CardHeader>
-          <CardTitle className="text-lg">📊 Your Assessment Summary</CardTitle>
+          <CardTitle className="text-lg">📊 {t('yourAssessmentSummary')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <div className="font-medium text-gray-600">Push-ups</div>
+              <div className="font-medium text-gray-600">{t('pushups')}</div>
               <div className="text-lg font-bold">{assessmentData.can_do_pushups}</div>
             </div>
             <div>
-              <div className="font-medium text-gray-600">Pull-ups</div>
+              <div className="font-medium text-gray-600">{t('pullups')}</div>
               <div className="text-lg font-bold">{assessmentData.can_do_pullups}</div>
             </div>
             <div>
-              <div className="font-medium text-gray-600">Plank Hold</div>
+              <div className="font-medium text-gray-600">{t('plankHold')}</div>
               <div className="text-lg font-bold">{assessmentData.can_hold_plank}s</div>
             </div>
           </div>
@@ -177,21 +179,21 @@ export default function AssessmentResult({
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 pt-6">
-        <Button 
+        <Button
           onClick={() => onContinue(experienceLevel)}
           className={`flex-1 bg-gradient-to-r ${style.gradient} hover:opacity-90 text-white`}
           size="lg"
         >
-          Create My Program 🚀
+          {t('createMyProgram')} 🚀
         </Button>
-        
-        <Button 
+
+        <Button
           onClick={onRetake}
           variant="outline"
           size="lg"
           className="flex-1"
         >
-          Retake Assessment
+          {t('retakeAssessment')}
         </Button>
       </div>
     </div>

@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useTranslations } from "@/lib/i18n";
 
 interface LoginFormProps {
   onToggleMode: () => void;
@@ -20,6 +21,8 @@ interface LoginFormProps {
 
 export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
   const { signIn, signUp } = useAuth();
+  const t = useTranslations('authForm');
+  const tCommon = useTranslations('common');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,7 +43,7 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
       if (isSignUp) {
         // Validate password confirmation
         if (password !== confirmPassword) {
-          throw new Error("Passwords do not match");
+          throw new Error(t('passwordsDontMatch'));
         }
 
         const result = await signUp(email, password);
@@ -49,7 +52,7 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
           throw result.error;
         }
 
-        // Vérifier si l'utilisateur a été créé
+        // Check if user was created
         if (result.data?.user) {
           setShowConfirmation(true);
           return;
@@ -61,30 +64,30 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
           throw result.error;
         }
       }
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : t('anErrorOccurred'));
     } finally {
       setLoading(false);
     }
   }
 
-  // Page de confirmation d'inscription
+  // Signup confirmation page
   if (showConfirmation) {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl text-green-600">
-            Compte créé avec succès ! ✅
+            {t('accountCreatedSuccess')} ✅
           </CardTitle>
           <CardDescription>
-            Vous pouvez maintenant vous connecter
+            {t('canNowSignIn')}
           </CardDescription>
         </CardHeader>
 
         <CardContent className="text-center space-y-4">
           <div className="bg-green-50 p-4 rounded-lg">
             <p className="text-sm text-green-600">
-              Votre compte a été créé avec l'email : <strong>{email}</strong>
+              {t('accountCreatedWith')} <strong>{email}</strong>
             </p>
           </div>
 
@@ -103,7 +106,7 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
             }}
             className="w-full"
           >
-            Se connecter maintenant
+            {t('signInNow')}
           </Button>
         </CardContent>
       </Card>
@@ -114,19 +117,19 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">
-          {isSignUp ? "Create Account" : "Welcome Back"}
+          {isSignUp ? t('createAccount') : t('welcomeBack')}
         </CardTitle>
         <CardDescription>
           {isSignUp
-            ? "Start your calisthenics journey"
-            : "Sign in to continue your training"}
+            ? t('startJourney')
+            : t('signInToContinue')}
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('email')}</Label>
             <Input
               id="email"
               type="email"
@@ -137,7 +140,7 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('password')}</Label>
             <Input
               id="password"
               type="password"
@@ -159,7 +162,7 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
 
           {isSignUp && (
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t('confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -179,12 +182,12 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
               />
               {passwordsMatch && (
                 <p className="text-sm text-green-600 flex items-center gap-1">
-                  ✓ Passwords match
+                  ✓ {t('passwordsMatch')}
                 </p>
               )}
               {passwordsDontMatch && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
-                  ✗ Passwords do not match
+                  ✗ {t('passwordsDontMatch')}
                 </p>
               )}
             </div>
@@ -197,7 +200,7 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
           )}
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
+            {loading ? tCommon('loading') : isSignUp ? t('createAccount') : t('signIn')}
           </Button>
         </form>
 
@@ -208,8 +211,8 @@ export function LoginForm({ onToggleMode, isSignUp }: LoginFormProps) {
             className="text-blue-600 hover:underline"
           >
             {isSignUp
-              ? "Already have an account? Sign in"
-              : "Don't have an account? Sign up"}
+              ? t('alreadyHaveAccount')
+              : t('dontHaveAccount')}
           </button>
         </div>
       </CardContent>

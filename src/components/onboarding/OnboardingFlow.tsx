@@ -20,10 +20,12 @@ import {
 import type { OnboardingData } from "@/types/onboarding";
 import AssessmentResult from "./AssessmentResult";
 import type { ProgramGenerationParams } from "@/types/program";
+import { useTranslations } from "@/lib/i18n";
 
 export function OnboardingFlow() {
   const { user } = useAuth();
   const router = useRouter();
+  const t = useTranslations('onboardingFlow');
   const [currentStepId, setCurrentStepId] = useState(ONBOARDING_STEPS[0].id);
   const [formData, setFormData] = useState<Partial<OnboardingData>>({});
   const [loading, setLoading] = useState(false);
@@ -77,7 +79,7 @@ export function OnboardingFlow() {
 
   // Show assessment results before final completion
   function showAssessmentResults(dataToValidate = formData) {
-    // Vérifier tous les champs requis (exclure injuries_or_limitations qui est optionnel)
+    // Check all required fields (exclude injuries_or_limitations which is optional)
     const requiredFields = {
       full_name: !!dataToValidate.full_name,
       can_do_pushups: dataToValidate.can_do_pushups !== undefined,
@@ -108,7 +110,7 @@ export function OnboardingFlow() {
         training_frequency: String(dataToValidate.training_frequency!),
       };
 
-      // Mettre à jour formData avec les données validées si nécessaire
+      // Update formData with validated data if necessary
       if (dataToValidate !== formData) {
         setFormData(dataToValidate);
       }
@@ -121,9 +123,7 @@ export function OnboardingFlow() {
         .map(([field]) => field);
 
       setError(
-        `Veuillez compléter tous les champs requis. Champs manquants: ${missingFields.join(
-          ", "
-        )}`
+        `${t('missingFields')} ${missingFields.join(", ")}`
       );
     }
   }
@@ -222,7 +222,7 @@ export function OnboardingFlow() {
     } catch (err) {
       console.error("Onboarding completion error:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to complete onboarding"
+        err instanceof Error ? err.message : t('errorCompleting')
       );
     } finally {
       setLoading(false);
@@ -235,7 +235,7 @@ export function OnboardingFlow() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-lg text-gray-600">
-            Creating your personalized program...
+            {t('creatingProgram')}
           </p>
         </div>
       </div>
@@ -255,7 +255,7 @@ export function OnboardingFlow() {
         {/* Error Display */}
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            <p className="font-medium">Error completing onboarding</p>
+            <p className="font-medium">{t('errorCompleting')}</p>
             <p className="text-sm">{error}</p>
           </div>
         )}
