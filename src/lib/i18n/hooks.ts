@@ -72,6 +72,6 @@ export function useTranslations(namespace?: string): TranslateFn {
 }
 
 // Helper to check if value is a function
-function isFunction(value: unknown): value is Function {
+function isFunction(value: unknown): value is (params: Record<string, string | number>) => string {
   return typeof value === 'function'
 }
