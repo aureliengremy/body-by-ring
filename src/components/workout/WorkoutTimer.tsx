@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { useTranslations } from '@/lib/i18n'
 
 interface WorkoutTimerProps {
   restTimeSeconds?: number
@@ -10,11 +11,12 @@ interface WorkoutTimerProps {
   autoStart?: boolean
 }
 
-export function WorkoutTimer({ 
-  restTimeSeconds = 120, 
+export function WorkoutTimer({
+  restTimeSeconds = 120,
   onTimerComplete,
-  autoStart = false 
+  autoStart = false
 }: WorkoutTimerProps) {
+  const t = useTranslations('workoutTimer')
   const [timeLeft, setTimeLeft] = useState(restTimeSeconds)
   const [isActive, setIsActive] = useState(autoStart)
   const [isComplete, setIsComplete] = useState(false)
@@ -92,7 +94,7 @@ export function WorkoutTimer({
               {formatTime(timeLeft)}
             </div>
             <p className="text-sm text-gray-600 mt-1">
-              {isComplete ? 'Rest complete!' : 'Rest time remaining'}
+              {isComplete ? t('restComplete') : t('restTimeRemaining')}
             </p>
           </div>
 
@@ -108,23 +110,23 @@ export function WorkoutTimer({
           <div className="flex gap-2 justify-center">
             {!isActive && !isComplete && (
               <Button onClick={handleStart} size="sm">
-                Start Rest
+                {t('startRest')}
               </Button>
             )}
-            
+
             {isActive && (
               <Button onClick={handlePause} variant="outline" size="sm">
-                Pause
+                {t('pause')}
               </Button>
             )}
 
             <Button onClick={handleReset} variant="outline" size="sm">
-              Reset
+              {t('reset')}
             </Button>
 
             {!isComplete && (
               <Button onClick={handleSkip} variant="ghost" size="sm">
-                Skip Rest
+                {t('skipRest')}
               </Button>
             )}
           </div>
@@ -132,49 +134,49 @@ export function WorkoutTimer({
           {/* Quick Timer Buttons */}
           {!isActive && (
             <div className="flex gap-2 justify-center">
-              <Button 
+              <Button
                 onClick={() => {
                   setTimeLeft(60)
                   setIsComplete(false)
                 }}
-                variant="outline" 
+                variant="outline"
                 size="sm"
                 className="text-xs"
               >
-                1 min
+                1 {t('minutes')}
               </Button>
-              <Button 
+              <Button
                 onClick={() => {
                   setTimeLeft(90)
                   setIsComplete(false)
                 }}
-                variant="outline" 
+                variant="outline"
                 size="sm"
                 className="text-xs"
               >
-                1.5 min
+                1.5 {t('minutes')}
               </Button>
-              <Button 
+              <Button
                 onClick={() => {
                   setTimeLeft(120)
                   setIsComplete(false)
                 }}
-                variant="outline" 
+                variant="outline"
                 size="sm"
                 className="text-xs"
               >
-                2 min
+                2 {t('minutes')}
               </Button>
-              <Button 
+              <Button
                 onClick={() => {
                   setTimeLeft(180)
                   setIsComplete(false)
                 }}
-                variant="outline" 
+                variant="outline"
                 size="sm"
                 className="text-xs"
               >
-                3 min
+                3 {t('minutes')}
               </Button>
             </div>
           )}

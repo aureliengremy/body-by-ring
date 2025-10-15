@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { SetLogger } from './SetLogger'
 import { WorkoutTimer } from './WorkoutTimer'
+import { useTranslations } from '@/lib/i18n'
 import type { Exercise } from '@/types/exercise'
 import { CATEGORY_INFO, getDifficultyColorClass } from '@/types/exercise'
 
@@ -36,6 +37,7 @@ export function ExerciseBlock({
   isActive,
   showInstructions = true
 }: ExerciseBlockProps) {
+  const t = useTranslations('exerciseBlock')
   const [currentSetIndex, setCurrentSetIndex] = useState(0)
   const [showTimer, setShowTimer] = useState(false)
   const [showFullInstructions, setShowFullInstructions] = useState(false)
@@ -82,16 +84,16 @@ export function ExerciseBlock({
               <span className="text-xl">{categoryInfo.emoji}</span>
               {exercise.name}
               {isExerciseComplete && (
-                <span className="text-green-600 text-sm">✓ Complete</span>
+                <span className="text-green-600 text-sm">✓ {t('complete')}</span>
               )}
             </CardTitle>
-            
+
             <div className="flex items-center gap-3 mt-2">
               <span className={`px-2 py-1 rounded text-sm font-medium border ${getDifficultyColorClass(exercise.difficulty_level)}`}>
-                Level {exercise.difficulty_level}
+                {t('level')} {exercise.difficulty_level}
               </span>
               <span className="text-sm text-gray-600">
-                {completedSets} of {sets.length} sets complete
+                {completedSets} {t('setsComplete')} {sets.length}
               </span>
             </div>
           </div>
@@ -109,7 +111,7 @@ export function ExerciseBlock({
                 className="p-0 h-auto text-blue-600"
                 onClick={() => setShowFullInstructions(!showFullInstructions)}
               >
-                {showFullInstructions ? 'Show less' : 'Show more'}
+                {showFullInstructions ? t('showLess') : t('showMore')}
               </Button>
             )}
           </CardDescription>
@@ -120,7 +122,7 @@ export function ExerciseBlock({
         {/* Rest Timer */}
         {showTimer && isActive && (
           <div className="mb-6">
-            <h4 className="font-medium mb-3">Rest Between Sets</h4>
+            <h4 className="font-medium mb-3">{t('restBetweenSets')}</h4>
             <WorkoutTimer
               restTimeSeconds={120} // 2 minutes default
               onTimerComplete={handleTimerComplete}
@@ -128,7 +130,7 @@ export function ExerciseBlock({
             />
             <div className="text-center mt-3">
               <Button onClick={handleSkipRest} variant="outline" size="sm">
-                Skip Rest & Continue
+                {t('skipRestContinue')}
               </Button>
             </div>
           </div>
@@ -151,11 +153,11 @@ export function ExerciseBlock({
         {/* Exercise Summary */}
         {isExerciseComplete && (
           <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h4 className="font-medium text-green-800 mb-2">Exercise Complete! 🎉</h4>
+            <h4 className="font-medium text-green-800 mb-2">{t('exerciseComplete')}</h4>
             <div className="text-sm text-green-700 space-y-1">
-              <div>Total sets: {completedSets}</div>
-              <div>Total reps: {sets.reduce((total, set) => total + (set.actual_reps || 0), 0)}</div>
-              <div>Average RPE: {
+              <div>{t('totalSets')} {completedSets}</div>
+              <div>{t('totalReps')} {sets.reduce((total, set) => total + (set.actual_reps || 0), 0)}</div>
+              <div>{t('averageRpe')} {
                 Math.round(sets.reduce((total, set) => total + (set.rpe || 0), 0) / sets.length * 10) / 10
               }/10</div>
             </div>

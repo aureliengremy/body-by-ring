@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  Achievement, 
-  ACHIEVEMENT_DEFINITIONS, 
-  AchievementSystem as AchievementLogic 
+import { useTranslations } from '@/lib/i18n'
+import {
+  Achievement,
+  ACHIEVEMENT_DEFINITIONS,
+  AchievementSystem as AchievementLogic
 } from '@/lib/achievements'
-import { 
+import {
   Trophy,
   Star,
   Lock,
@@ -30,6 +31,7 @@ interface UserAchievement extends Achievement {
 }
 
 export function AchievementSystem() {
+  const t = useTranslations('achievementSystem')
   const [achievements, setAchievements] = useState<UserAchievement[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedRarity, setSelectedRarity] = useState<string>('all')
@@ -80,8 +82,22 @@ export function AchievementSystem() {
     ? achievements.reduce((sum, a) => sum + a.progress, 0) / achievements.length 
     : 0
 
-  const categories = ['all', 'strength', 'consistency', 'volume', 'milestone', 'streak', 'skill']
-  const rarities = ['all', 'common', 'rare', 'epic', 'legendary']
+  const categories = [
+    { value: 'all', label: t('all') },
+    { value: 'strength', label: t('strength') },
+    { value: 'consistency', label: t('consistency') },
+    { value: 'volume', label: t('volume') },
+    { value: 'milestone', label: t('milestone') },
+    { value: 'streak', label: 'streak' },
+    { value: 'skill', label: t('skill') }
+  ]
+  const rarities = [
+    { value: 'all', label: t('all') },
+    { value: 'common', label: t('common') },
+    { value: 'rare', label: t('rare') },
+    { value: 'epic', label: t('epic') },
+    { value: 'legendary', label: t('legendary') }
+  ]
 
   const getRarityIcon = (rarity: string) => {
     switch (rarity) {
@@ -107,10 +123,10 @@ export function AchievementSystem() {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Trophy className="h-6 w-6 text-yellow-600" />
-            Achievement System
+            {t('title')}
           </h2>
           <p className="text-gray-600">
-            Unlock badges and rewards as you progress in your fitness journey
+            {t('unlockBadges')}
           </p>
         </div>
       </div>
@@ -123,18 +139,18 @@ export function AchievementSystem() {
               {unlockedAchievements.length}
             </div>
             <div className="text-sm text-gray-600">
-              Unlocked / {achievements.length}
+              {t('unlocked')} / {achievements.length}
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-blue-600">
               {Math.round(totalProgress)}%
             </div>
             <div className="text-sm text-gray-600">
-              Overall Progress
+              {t('overallProgress')}
             </div>
           </CardContent>
         </Card>
@@ -145,7 +161,7 @@ export function AchievementSystem() {
               {unlockedAchievements.filter(a => a.rarity === 'epic' || a.rarity === 'legendary').length}
             </div>
             <div className="text-sm text-gray-600">
-              Rare Achievements
+              {t('rareAchievements')}
             </div>
           </CardContent>
         </Card>
@@ -156,7 +172,7 @@ export function AchievementSystem() {
               {userStats.currentStreak}
             </div>
             <div className="text-sm text-gray-600">
-              Current Streak
+              {t('currentStreak')}
             </div>
           </CardContent>
         </Card>
@@ -166,9 +182,9 @@ export function AchievementSystem() {
       <Card>
         <CardContent className="p-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="font-medium">Achievement Progress</span>
+            <span className="font-medium">{t('achievementProgress')}</span>
             <span className="text-sm text-gray-600">
-              {unlockedAchievements.length} / {achievements.length} unlocked
+              {unlockedAchievements.length} / {achievements.length} {t('unlocked')}
             </span>
           </div>
           <Progress value={(unlockedAchievements.length / achievements.length) * 100} className="h-3" />
@@ -178,34 +194,34 @@ export function AchievementSystem() {
       {/* Filters */}
       <div className="flex flex-wrap gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Category:</span>
+          <span className="text-sm font-medium">{t('category')}</span>
           <div className="flex gap-1">
             {categories.map(category => (
               <Button
-                key={category}
-                variant={selectedCategory === category ? 'default' : 'outline'}
+                key={category.value}
+                variant={selectedCategory === category.value ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSelectedCategory(category)}
+                onClick={() => setSelectedCategory(category.value)}
                 className="capitalize"
               >
-                {category}
+                {category.label}
               </Button>
             ))}
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Rarity:</span>
+          <span className="text-sm font-medium">{t('rarity')}</span>
           <div className="flex gap-1">
             {rarities.map(rarity => (
               <Button
-                key={rarity}
-                variant={selectedRarity === rarity ? 'default' : 'outline'}
+                key={rarity.value}
+                variant={selectedRarity === rarity.value ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSelectedRarity(rarity)}
+                onClick={() => setSelectedRarity(rarity.value)}
                 className="capitalize"
               >
-                {rarity}
+                {rarity.label}
               </Button>
             ))}
           </div>
@@ -215,10 +231,10 @@ export function AchievementSystem() {
       {/* Achievement Tabs */}
       <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="all">All Achievements</TabsTrigger>
-          <TabsTrigger value="unlocked">Unlocked</TabsTrigger>
-          <TabsTrigger value="locked">In Progress</TabsTrigger>
-          <TabsTrigger value="recent">Recently Unlocked</TabsTrigger>
+          <TabsTrigger value="all">{t('allAchievements')}</TabsTrigger>
+          <TabsTrigger value="unlocked">{t('unlocked')}</TabsTrigger>
+          <TabsTrigger value="locked">{t('inProgress')}</TabsTrigger>
+          <TabsTrigger value="recent">{t('recentlyUnlocked')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
@@ -253,12 +269,12 @@ export function AchievementSystem() {
                         {achievement.isUnlocked ? (
                           <Badge className="bg-green-100 text-green-800">
                             <Unlock className="h-3 w-3 mr-1" />
-                            Unlocked
+                            {t('unlocked')}
                           </Badge>
                         ) : (
                           <Badge variant="outline">
                             <Lock className="h-3 w-3 mr-1" />
-                            Locked
+                            {t('locked')}
                           </Badge>
                         )}
                       </div>
@@ -269,7 +285,7 @@ export function AchievementSystem() {
                       {!achievement.isUnlocked && (
                         <div className="mb-3">
                           <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm font-medium">Progress</span>
+                            <span className="text-sm font-medium">{t('progress')}</span>
                             <span className="text-sm text-gray-600">
                               {achievement.progress}%
                             </span>
@@ -280,7 +296,7 @@ export function AchievementSystem() {
 
                       {/* Requirements */}
                       <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-gray-700">Requirements:</h4>
+                        <h4 className="text-sm font-medium text-gray-700">{t('requirements')}</h4>
                         <div className="flex flex-wrap gap-1">
                           {achievement.requirements.map((req, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
@@ -305,7 +321,7 @@ export function AchievementSystem() {
                       {/* Unlock Date */}
                       {achievement.unlockedAt && (
                         <div className="mt-3 text-xs text-gray-600">
-                          Unlocked on {formatDate(achievement.unlockedAt)}
+                          {t('unlockedOn')} {formatDate(achievement.unlockedAt)}
                         </div>
                       )}
                     </div>
@@ -368,7 +384,7 @@ export function AchievementSystem() {
                         </div>
                         <p className="text-sm text-gray-700 mb-2">{achievement.description}</p>
                         <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs font-medium">Progress</span>
+                          <span className="text-xs font-medium">{t('progress')}</span>
                           <span className="text-xs text-gray-600">{achievement.progress}%</span>
                         </div>
                         <Progress value={achievement.progress} className="h-2" />
@@ -399,7 +415,7 @@ export function AchievementSystem() {
                           <h4 className="font-semibold">{achievement.title}</h4>
                           <Badge className="bg-green-100 text-green-800">
                             <Zap className="h-3 w-3 mr-1" />
-                            New!
+                            {t('new')}
                           </Badge>
                           <Badge className={AchievementLogic.getRarityColor(achievement.rarity)}>
                             {achievement.rarity}

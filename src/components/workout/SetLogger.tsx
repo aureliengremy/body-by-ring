@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useTranslations } from '@/lib/i18n'
 import type { Exercise } from '@/types/exercise'
 
 interface SetData {
@@ -28,14 +29,15 @@ interface SetLoggerProps {
   showTarget?: boolean
 }
 
-export function SetLogger({ 
-  exercise, 
-  setData, 
-  onUpdate, 
+export function SetLogger({
+  exercise,
+  setData,
+  onUpdate,
   onComplete,
   isActive,
-  showTarget = true 
+  showTarget = true
 }: SetLoggerProps) {
+  const t = useTranslations('setLogger')
   const [repsInput, setRepsInput] = useState(setData.actual_reps?.toString() || '')
   const [rpeInput, setRpeInput] = useState(setData.rpe?.toString() || '')
   const [notesInput, setNotesInput] = useState(setData.notes || '')
@@ -73,21 +75,21 @@ export function SetLogger({
         <div className="flex justify-between items-start mb-4">
           <div>
             <h4 className="font-medium text-lg">
-              Set {setData.set_number}
+              {t('set')} {setData.set_number}
             </h4>
             {showTarget && (setData.target_reps_min || setData.target_reps_max) && (
               <p className="text-sm text-gray-600">
-                Target: {setData.target_reps_min === setData.target_reps_max 
-                  ? `${setData.target_reps_min} reps`
-                  : `${setData.target_reps_min}-${setData.target_reps_max} reps`
+                {t('target')} {setData.target_reps_min === setData.target_reps_max
+                  ? `${setData.target_reps_min} ${t('reps')}`
+                  : `${setData.target_reps_min}-${setData.target_reps_max} ${t('reps')}`
                 }
               </p>
             )}
           </div>
-          
+
           {setData.completed && (
             <div className="flex items-center gap-1 text-green-600">
-              <span className="text-sm font-medium">✓ Complete</span>
+              <span className="text-sm font-medium">✓ {t('complete')}</span>
             </div>
           )}
         </div>
@@ -98,7 +100,7 @@ export function SetLogger({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor={`reps-${setData.set_number}`}>
-                  Reps Completed
+                  {t('repsCompleted')}
                 </Label>
                 <Input
                   id={`reps-${setData.set_number}`}
@@ -114,18 +116,18 @@ export function SetLogger({
               {/* RPE Input */}
               <div className="space-y-2">
                 <Label htmlFor={`rpe-${setData.set_number}`}>
-                  RPE (6-10)
+                  {t('rpe')} (6-10)
                 </Label>
                 <Select value={rpeInput} onValueChange={handleRpeChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Rate effort" />
+                    <SelectValue placeholder={t('rateEffort')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="6">6 - Easy</SelectItem>
-                    <SelectItem value="7">7 - Moderate</SelectItem>
-                    <SelectItem value="8">8 - Hard</SelectItem>
-                    <SelectItem value="9">9 - Very Hard</SelectItem>
-                    <SelectItem value="10">10 - Maximum</SelectItem>
+                    <SelectItem value="6">6 - {t('easy')}</SelectItem>
+                    <SelectItem value="7">7 - {t('moderate')}</SelectItem>
+                    <SelectItem value="8">8 - {t('hard')}</SelectItem>
+                    <SelectItem value="9">9 - {t('veryHard')}</SelectItem>
+                    <SelectItem value="10">10 - {t('maximum')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -134,23 +136,23 @@ export function SetLogger({
             {/* Notes (Optional) */}
             <div className="space-y-2">
               <Label htmlFor={`notes-${setData.set_number}`}>
-                Notes (Optional)
+                {t('notesOptional')}
               </Label>
               <Input
                 id={`notes-${setData.set_number}`}
                 value={notesInput}
                 onChange={(e) => handleNotesChange(e.target.value)}
-                placeholder="How did this set feel?"
+                placeholder={t('howDidSetFeel')}
               />
             </div>
 
             {/* Complete Button */}
-            <Button 
+            <Button
               onClick={handleComplete}
               disabled={!canComplete}
               className="w-full"
             >
-              Complete Set {setData.set_number}
+              {t('completeSet')} {setData.set_number}
             </Button>
           </div>
         )}
@@ -158,18 +160,18 @@ export function SetLogger({
         {setData.completed && (
           <div className="text-sm space-y-1">
             <div className="flex justify-between">
-              <span>Reps:</span>
+              <span>{t('reps')}:</span>
               <span className="font-medium">{setData.actual_reps}</span>
             </div>
             {setData.rpe && (
               <div className="flex justify-between">
-                <span>RPE:</span>
+                <span>{t('rpe')}:</span>
                 <span className="font-medium">{setData.rpe}/10</span>
               </div>
             )}
             {setData.notes && (
               <div className="mt-2">
-                <span className="text-gray-600">Notes:</span>
+                <span className="text-gray-600">{t('notes')}:</span>
                 <p className="text-gray-700 text-sm mt-1">{setData.notes}</p>
               </div>
             )}
@@ -178,7 +180,7 @@ export function SetLogger({
 
         {!isActive && !setData.completed && (
           <div className="text-center text-gray-500 py-4">
-            <p className="text-sm">Complete previous sets first</p>
+            <p className="text-sm">{t('completePreviousSets')}</p>
           </div>
         )}
       </CardContent>

@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  CalendarDays, 
-  TrendingUp, 
+import { useTranslations } from '@/lib/i18n'
+import {
+  CalendarDays,
+  TrendingUp,
   TrendingDown,
   Target,
   Award,
@@ -46,6 +47,7 @@ interface MonthlyReport {
 }
 
 export function ProgressReports() {
+  const t = useTranslations('progressReports')
   const [weeklyReports, setWeeklyReports] = useState<WeeklyReport[]>([])
   const [monthlyReports, setMonthlyReports] = useState<MonthlyReport[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -153,7 +155,7 @@ export function ProgressReports() {
   }
 
   if (isLoading) {
-    return <div>Loading reports...</div>
+    return <div>{t('loadingReports')}</div>
   }
 
   return (
@@ -162,22 +164,22 @@ export function ProgressReports() {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <CalendarDays className="h-6 w-6 text-blue-600" />
-            Progress Reports
+            {t('title')}
           </h2>
           <p className="text-gray-600">
-            Detailed analysis of your training progress
+            {t('detailedAnalysis')}
           </p>
         </div>
         <Button variant="outline" size="sm" className="flex items-center gap-2">
           <Download className="h-4 w-4" />
-          Export PDF
+          {t('exportPdf')}
         </Button>
       </div>
 
       <Tabs defaultValue="weekly" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="weekly">Weekly Reports</TabsTrigger>
-          <TabsTrigger value="monthly">Monthly Reports</TabsTrigger>
+          <TabsTrigger value="weekly">{t('weeklyReports')}</TabsTrigger>
+          <TabsTrigger value="monthly">{t('monthlyReports')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="weekly" className="space-y-4">
@@ -188,14 +190,14 @@ export function ProgressReports() {
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <Calendar className="h-5 w-5" />
-                      Week of {formatDate(report.weekStart)} - {formatDate(report.weekEnd)}
+                      {t('weekOf')} {formatDate(report.weekStart)} - {formatDate(report.weekEnd)}
                     </CardTitle>
                     <CardDescription>
-                      Weekly performance summary and insights
+                      {t('performanceSummary')}
                     </CardDescription>
                   </div>
                   <Badge className={getConsistencyColor(report.consistencyScore)}>
-                    {report.consistencyScore}% Consistency
+                    {report.consistencyScore}% {t('consistency')}
                   </Badge>
                 </div>
               </CardHeader>
@@ -206,25 +208,25 @@ export function ProgressReports() {
                     <div className="text-2xl font-bold text-blue-600">
                       {report.workoutsCompleted}/{report.targetWorkouts}
                     </div>
-                    <div className="text-sm text-gray-600">Workouts</div>
+                    <div className="text-sm text-gray-600">{t('workouts')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">
                       {report.totalVolume}
                     </div>
-                    <div className="text-sm text-gray-600">Total Volume</div>
+                    <div className="text-sm text-gray-600">{t('totalVolume')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-orange-600">
                       {report.averageRpe}
                     </div>
-                    <div className="text-sm text-gray-600">Avg RPE</div>
+                    <div className="text-sm text-gray-600">{t('avgRpe')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-purple-600">
                       {report.consistencyScore}%
                     </div>
-                    <div className="text-sm text-gray-600">Consistency</div>
+                    <div className="text-sm text-gray-600">{t('consistency')}</div>
                   </div>
                 </div>
 
@@ -233,7 +235,7 @@ export function ProgressReports() {
                   <div>
                     <h4 className="font-semibold text-green-700 mb-2 flex items-center gap-2">
                       <TrendingUp className="h-4 w-4" />
-                      Improvements
+                      {t('improvements')}
                     </h4>
                     <ul className="space-y-1">
                       {report.improvements.map((improvement, idx) => (
@@ -249,7 +251,7 @@ export function ProgressReports() {
                   <div>
                     <h4 className="font-semibold text-orange-700 mb-2 flex items-center gap-2">
                       <Target className="h-4 w-4" />
-                      Challenges
+                      {t('challenges')}
                     </h4>
                     <ul className="space-y-1">
                       {report.challenges.map((challenge, idx) => (
@@ -265,7 +267,7 @@ export function ProgressReports() {
                   <div>
                     <h4 className="font-semibold text-blue-700 mb-2 flex items-center gap-2">
                       <Award className="h-4 w-4" />
-                      Next Week Goals
+                      {t('nextWeekGoals')}
                     </h4>
                     <ul className="space-y-1">
                       {report.nextWeekGoals.map((goal, idx) => (
@@ -293,11 +295,11 @@ export function ProgressReports() {
                       {report.month} {report.year}
                     </CardTitle>
                     <CardDescription>
-                      Monthly performance analysis and trends
+                      {t('monthlyAnalysis')}
                     </CardDescription>
                   </div>
                   <Badge className={getConsistencyColor(report.consistencyRate)}>
-                    {report.consistencyRate}% Success Rate
+                    {report.consistencyRate}% {t('successRate')}
                   </Badge>
                 </div>
               </CardHeader>
@@ -309,7 +311,7 @@ export function ProgressReports() {
                       {report.workoutsCompleted}
                     </div>
                     <div className="text-sm text-gray-600">
-                      Workouts ({report.targetWorkouts} planned)
+                      {t('workouts')} ({report.targetWorkouts} {t('planned')})
                     </div>
                   </div>
                   <div className="text-center">
@@ -318,26 +320,26 @@ export function ProgressReports() {
                       {getPerformanceIcon(report.volumeChange)}
                     </div>
                     <div className="text-sm text-gray-600">
-                      Total Volume (+{report.volumeChange}%)
+                      {t('totalVolume')} (+{report.volumeChange}%)
                     </div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-purple-600">
                       {report.consistencyRate}%
                     </div>
-                    <div className="text-sm text-gray-600">Consistency</div>
+                    <div className="text-sm text-gray-600">{t('consistency')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-orange-600">
                       {report.achievements.length}
                     </div>
-                    <div className="text-sm text-gray-600">Achievements</div>
+                    <div className="text-sm text-gray-600">{t('achievements')}</div>
                   </div>
                 </div>
 
                 {/* Strength Gains */}
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">Strength Gains</h4>
+                  <h4 className="font-semibold text-gray-900 mb-3">{t('strengthGains')}</h4>
                   <div className="grid md:grid-cols-3 gap-4">
                     {report.strengthGains.map((gain, idx) => (
                       <div key={idx} className="bg-green-50 p-4 rounded-lg">
@@ -357,7 +359,7 @@ export function ProgressReports() {
                   <div>
                     <h4 className="font-semibold text-yellow-700 mb-2 flex items-center gap-2">
                       <Award className="h-4 w-4" />
-                      Achievements
+                      {t('achievements')}
                     </h4>
                     <ul className="space-y-1">
                       {report.achievements.map((achievement, idx) => (
@@ -373,7 +375,7 @@ export function ProgressReports() {
                   <div>
                     <h4 className="font-semibold text-blue-700 mb-2 flex items-center gap-2">
                       <Target className="h-4 w-4" />
-                      Recommendations
+                      {t('recommendations')}
                     </h4>
                     <ul className="space-y-1">
                       {report.recommendations.map((rec, idx) => (
