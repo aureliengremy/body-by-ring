@@ -37,47 +37,47 @@ export default function ProgramsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function loadPrograms() {
-      if (!user) return
+  const loadPrograms = async () => {
+    if (!user) return
 
-      try {
-        setLoading(true)
+    try {
+      setLoading(true)
 
-        // Load programs with workout statistics
-        const { data: programData, error: programError } = await supabase
-          .from('programs')
-          .select(`
-            *,
-            workouts (
-              id,
-              completed_at
-            )
-          `)
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
+      // Load programs with workout statistics
+      const { data: programData, error: programError } = await supabase
+        .from('programs')
+        .select(`
+          *,
+          workouts (
+            id,
+            completed_at
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
 
-        if (programError) throw programError
+      if (programError) throw programError
 
-        // Process programs with workout stats
-        const processedPrograms = programData.map(program => ({
-          ...program,
-          workouts: {
-            total: program.workouts?.length || 0,
-            completed: program.workouts?.filter((w: { completed_at?: string }) => w.completed_at).length || 0
-          }
-        }))
+      // Process programs with workout stats
+      const processedPrograms = programData.map(program => ({
+        ...program,
+        workouts: {
+          total: program.workouts?.length || 0,
+          completed: program.workouts?.filter((w: { completed_at?: string }) => w.completed_at).length || 0
+        }
+      }))
 
-        setPrograms(processedPrograms)
+      setPrograms(processedPrograms)
 
-      } catch (err) {
-        console.error('Error loading programs:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load programs')
-      } finally {
-        setLoading(false)
-      }
+    } catch (err) {
+      console.error('Error loading programs:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load programs')
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     loadPrograms()
   }, [user])
 

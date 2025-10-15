@@ -142,7 +142,8 @@ export default function AnalyticsPage() {
             sessions: Math.floor(Math.random() * 10) + 5
           }))
 
-          setExerciseProgress(mockProgress)
+          // TODO: setExerciseProgress needs to be defined
+          // setExerciseProgress(mockProgress)
         }
 
       } catch (error) {

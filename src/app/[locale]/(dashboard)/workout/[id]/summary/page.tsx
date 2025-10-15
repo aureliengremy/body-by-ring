@@ -237,7 +237,7 @@ export default function WorkoutSummaryPage() {
   }
 
   const calculateAverageRpe = () => {
-    if (!workout?.sets.length) return 0
+    if (!workout?.sets.length) return '0'
     const totalRpe = workout.sets.reduce((sum, set) => sum + set.rpe, 0)
     return (totalRpe / workout.sets.length).toFixed(1)
   }

@@ -50,64 +50,64 @@ export default function StartWorkoutPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function loadAvailableWorkouts() {
-      if (!user) return
+  const loadAvailableWorkouts = async () => {
+    if (!user) return
 
-      try {
-        setLoading(true)
+    try {
+      setLoading(true)
 
-      let query = supabase
-        .from('workouts')
-        .select(`
-          *,
-          programs!inner (
-            id,
+    let query = supabase
+      .from('workouts')
+      .select(`
+        *,
+        programs!inner (
+          id,
+          name,
+          phase,
+          user_id
+        ),
+        sets (
+          id,
+          exercises (
             name,
-            phase,
-            user_id
-          ),
-          sets (
-            id,
-            exercises (
-              name,
-              category
-            )
+            category
           )
-        `)
-        .eq('programs.user_id', user?.id)
-        .order('week_number', { ascending: true })
-        .order('session_type', { ascending: true })
+        )
+      `)
+      .eq('programs.user_id', user?.id)
+      .order('week_number', { ascending: true })
+      .order('session_type', { ascending: true })
 
-      // Filter by program if specified
-      if (programId) {
-        query = query.eq('program_id', programId)
-      }
-
-      const { data: workoutData, error: workoutError } = await query
-
-      if (workoutError) throw workoutError
-
-      // Process workouts
-      const processedWorkouts = workoutData?.map(workout => ({
-        ...workout,
-        program: workout.programs,
-        sets: workout.sets?.map((set: { id: string; exercises: unknown }) => ({
-          id: set.id,
-          exercise: set.exercises
-        })) || []
-      })) || []
-
-      setWorkouts(processedWorkouts)
-
-      } catch (err) {
-        console.error('Error loading workouts:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load workouts')
-      } finally {
-        setLoading(false)
-      }
+    // Filter by program if specified
+    if (programId) {
+      query = query.eq('program_id', programId)
     }
 
+    const { data: workoutData, error: workoutError } = await query
+
+    if (workoutError) throw workoutError
+
+    // Process workouts
+    const processedWorkouts = workoutData?.map(workout => ({
+      ...workout,
+      program: workout.programs,
+      sets: workout.sets?.map((set: { id: string; exercises: unknown }) => ({
+        id: set.id,
+        exercise: set.exercises
+      })) || []
+    })) || []
+
+    setWorkouts(processedWorkouts)
+
+    } catch (err) {
+      console.error('Error loading workouts:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load workouts')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     loadAvailableWorkouts()
   }, [user, programId])
 

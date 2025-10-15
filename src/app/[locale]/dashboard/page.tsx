@@ -302,9 +302,7 @@ export default function DashboardPage() {
               <TabsContent value="motivation" className="space-y-6">
                 <Suspense fallback={<ComponentLoader />}>
                   <MotivationCenter
-                    userLevel={gameData.level}
-                    streak={gameData.streak.current}
-                    lastLoginDate={gameData.lastLoginDate}
+                    userId={user?.id || ''}
                   />
                 </Suspense>
               </TabsContent>
